@@ -1,0 +1,1882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TCSP Framework — Micro-Lessons</title>
+<style>
+  :root {
+    --bg: #1A2420;
+    --bg-deep: #101713;
+    --surface: #1f2d28;
+    --surface2: #253029;
+    --surface3: #17211d;
+    --green: #2C5F2D;
+    --green-light: #5da85e;
+    --copper: #B87333;
+    --copper-light: #d4924f;
+    --purple: #4A3B6B;
+    --purple-light: #9b8dc8;
+    --sage: #84B59F;
+    --sage-dark: #5a8f78;
+    --cream: #F7F5F0;
+    --paper: #eee2ca;
+    --paper-line: rgba(67, 83, 60, 0.28);
+    --cream-dim: #c8c4bc;
+    --text: #F7F5F0;
+    --text-muted: #b2b5a7;
+    --border: rgba(132,181,159,0.22);
+    --border-strong: rgba(132,181,159,0.46);
+    --focus: #f0d48a;
+    --shadow: 0 24px 80px rgba(0,0,0,0.34);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--text);
+    background:
+      radial-gradient(circle at 20% 0%, rgba(132,181,159,0.10), transparent 30%),
+      radial-gradient(circle at 90% 20%, rgba(184,115,51,0.08), transparent 32%),
+      linear-gradient(135deg, var(--bg-deep), var(--bg));
+    font-family: Georgia, 'Times New Roman', serif;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: .28;
+    background-image:
+      linear-gradient(rgba(132,181,159,.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(132,181,159,.08) 1px, transparent 1px);
+    background-size: 42px 42px;
+    mask-image: radial-gradient(circle at center, black 0%, transparent 80%);
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    opacity: .75;
+  }
+
+  h1, h2, h3, h4, button, .eyebrow, .label, .micro, .tier-name, .card-num, .step-name, .lang-btn {
+    font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif;
+  }
+
+  button, a { -webkit-tap-highlight-color: transparent; }
+  button:focus-visible, a:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+  .skip-link {
+    position: absolute;
+    left: -999px;
+    top: 1rem;
+    background: var(--cream);
+    color: var(--bg);
+    padding: .7rem 1rem;
+    border-radius: .5rem;
+    z-index: 999;
+  }
+  .skip-link:focus { left: 1rem; }
+
+  .hud-scanline {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(132,181,159,.8), transparent);
+    opacity: .32;
+    pointer-events: none;
+    z-index: 10;
+    animation: scan 7s linear infinite;
+  }
+  @keyframes scan {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(100vh); }
+  }
+  body.lesson-active .hud-scanline { display: none; }
+
+  .decor-orbits {
+    position: fixed;
+    right: -100px;
+    top: -80px;
+    width: 460px;
+    height: 460px;
+    border: 1px solid rgba(132,181,159,.16);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .decor-orbits::before, .decor-orbits::after {
+    content: '';
+    position: absolute;
+    border: 1px dashed rgba(132,181,159,.15);
+    border-radius: 50%;
+  }
+  .decor-orbits::before { inset: 76px; }
+  .decor-orbits::after { inset: 150px; background: radial-gradient(circle, rgba(132,181,159,.18), transparent 4px); }
+
+  .vine-left, .vine-right {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 70px;
+    pointer-events: none;
+    opacity: .14;
+    z-index: 1;
+  }
+  .vine-left { left: 0; }
+  .vine-right { right: 0; transform: scaleX(-1); }
+
+  #app {
+    position: relative;
+    z-index: 2;
+    width: min(1120px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 32px 0 64px;
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 32px;
+  }
+  .brand {
+    color: var(--sage);
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    font-size: .72rem;
+    font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif;
+  }
+  .lang-bar { display: flex; gap: .4rem; flex-wrap: wrap; justify-content: flex-end; }
+  .lang-btn {
+    border: 1px solid var(--border);
+    background: rgba(16, 23, 19, .7);
+    color: var(--text-muted);
+    padding: .46rem .72rem;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: .72rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .lang-btn[aria-pressed="true"] {
+    color: var(--cream);
+    border-color: var(--sage);
+    background: rgba(132,181,159,.14);
+  }
+
+  .hero {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    padding: clamp(28px, 6vw, 64px);
+    min-height: 410px;
+    box-shadow: var(--shadow);
+    background:
+      linear-gradient(90deg, rgba(26,36,32,.92), rgba(26,36,32,.82)),
+      radial-gradient(circle at 85% 20%, rgba(132,181,159,.18), transparent 25%);
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: .23;
+    background-image:
+      radial-gradient(rgba(132,181,159,.75) 1px, transparent 1px),
+      linear-gradient(110deg, transparent 0 68%, rgba(132,181,159,.18) 68% 68.2%, transparent 68.2%);
+    background-size: 22px 22px, 100% 100%;
+  }
+  .hero-inner { position: relative; max-width: 760px; }
+  .eyebrow {
+    color: var(--sage);
+    text-transform: uppercase;
+    letter-spacing: .18em;
+    font-size: .75rem;
+    margin: 0 0 14px;
+  }
+  h1 {
+    margin: 0;
+    font-size: clamp(2.5rem, 8vw, 5.8rem);
+    line-height: .9;
+    letter-spacing: -.05em;
+    text-transform: uppercase;
+  }
+  h1 span { color: var(--sage); }
+  .hero p {
+    max-width: 650px;
+    color: var(--cream-dim);
+    font-size: clamp(1rem, 2vw, 1.12rem);
+    line-height: 1.7;
+    margin: 22px 0 0;
+  }
+  .data-stream {
+    position: relative;
+    overflow: hidden;
+    margin-top: 28px;
+    color: rgba(132,181,159,.55);
+    font-family: 'Trebuchet MS', Arial, sans-serif;
+    font-size: .68rem;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .data-stream span { display: inline-block; animation: stream 24s linear infinite; }
+  @keyframes stream { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  .home-section { margin-top: 32px; }
+  .section-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 16px;
+  }
+  .section-header h2 {
+    margin: 0;
+    font-size: 1.15rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+  .section-header p { margin: 0; color: var(--text-muted); font-size: .92rem; }
+
+  .impact-legend {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  .impact-card, .component-card, .lesson-panel, .paper-card {
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: rgba(31,45,40,.78);
+    box-shadow: 0 16px 50px rgba(0,0,0,.20);
+  }
+  .impact-card { padding: 18px; position: relative; overflow: hidden; }
+  .impact-card::after {
+    content: '';
+    position: absolute;
+    width: 90px; height: 90px;
+    right: -28px; bottom: -30px;
+    border-radius: 50%;
+    border: 1px solid rgba(132,181,159,.16);
+  }
+  .impact-card strong {
+    display: block;
+    font-family: 'Trebuchet MS', Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 6px;
+  }
+  .impact-card p { color: var(--text-muted); margin: 0; line-height: 1.55; font-size: .9rem; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: .45rem; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .component-card {
+    min-height: 190px;
+    padding: 18px;
+    color: inherit;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform .2s ease, border-color .2s ease, background .2s ease;
+  }
+  .component-card:hover { transform: translateY(-3px); border-color: var(--border-strong); background: rgba(37,48,41,.95); }
+  .component-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--sage);
+  }
+  .component-card.col-green::before { background: var(--green-light); }
+  .component-card.col-copper::before { background: var(--copper-light); }
+  .component-card.col-purple::before { background: var(--purple-light); }
+  .component-card.col-sage::before { background: var(--sage); }
+  .card-num {
+    color: var(--sage);
+    letter-spacing: .14em;
+    font-size: .68rem;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .card-title {
+    color: var(--cream);
+    font-family: 'Trebuchet MS', Arial, sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 10px;
+  }
+  .card-desc { color: var(--text-muted); font-size: .9rem; line-height: 1.5; padding-right: 18px; }
+  .card-arrow { position: absolute; right: 18px; bottom: 16px; color: var(--sage); }
+
+  [hidden] { display: none !important; }
+
+  .lesson-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .btn {
+    border: 1px solid var(--border);
+    background: rgba(16,23,19,.72);
+    color: var(--cream);
+    border-radius: 999px;
+    padding: .78rem 1rem;
+    cursor: pointer;
+    font-family: 'Trebuchet MS', Arial, sans-serif;
+    letter-spacing: .05em;
+  }
+  .btn:hover { border-color: var(--sage); background: rgba(132,181,159,.1); }
+  .btn-primary { background: var(--sage-dark); border-color: var(--sage-dark); color: var(--cream); }
+  .btn-primary:hover { background: var(--sage); color: #102018; }
+  .btn[disabled] { opacity: .38; cursor: not-allowed; }
+  .breadcrumb { color: var(--text-muted); font-size: .82rem; font-family: 'Trebuchet MS', Arial, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+
+  .lesson-shell {
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    background: rgba(18,27,23,.86);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .lesson-header {
+    position: relative;
+    padding: clamp(24px, 5vw, 44px);
+    border-bottom: 1px solid var(--border);
+    background:
+      linear-gradient(90deg, rgba(31,45,40,.95), rgba(31,45,40,.7)),
+      radial-gradient(circle at 100% 0%, rgba(132,181,159,.18), transparent 30%);
+  }
+  .lesson-header::after {
+    content: '';
+    position: absolute;
+    right: 34px;
+    top: 34px;
+    width: 120px;
+    height: 120px;
+    border: 1px solid rgba(132,181,159,.14);
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 30px rgba(132,181,159,.03);
+  }
+  .lesson-eyebrow { color: var(--sage); text-transform: uppercase; letter-spacing: .16em; font-size: .72rem; margin: 0 0 10px; }
+  .lesson-title { margin: 0; font-size: clamp(2rem, 5vw, 4rem); line-height: .95; text-transform: uppercase; letter-spacing: -.04em; }
+  .lesson-subtitle { color: var(--cream-dim); line-height: 1.7; max-width: 760px; margin: 16px 0 0; font-size: 1.02rem; }
+  .status-strip {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    color: rgba(132,181,159,.62);
+    font-family: 'Trebuchet MS', Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    font-size: .68rem;
+  }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sage); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: .3 } 50% { opacity: 1 } }
+
+  .lesson-body { padding: clamp(20px, 4vw, 36px); }
+  .step-track {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  .step-pip {
+    width: 54px;
+    height: 8px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(132,181,159,.08);
+    cursor: pointer;
+  }
+  .step-pip[aria-current="step"] { background: var(--sage); border-color: var(--sage); }
+  .step-pip.done { background: var(--sage-dark); }
+  .step-name { color: var(--text-muted); font-size: .76rem; letter-spacing: .08em; text-transform: uppercase; margin-left: 4px; }
+
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--sage);
+    background: rgba(132,181,159,.1);
+    padding: .4rem .75rem;
+    font-family: 'Trebuchet MS', Arial, sans-serif;
+    font-size: .72rem;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .lesson-panel { padding: clamp(18px, 4vw, 28px); margin-bottom: 16px; }
+  .lesson-panel h3 { margin: 0 0 10px; font-size: 1.1rem; text-transform: uppercase; letter-spacing: .04em; }
+  .lesson-panel p { color: var(--text-muted); line-height: 1.7; margin: 0; }
+  .anchor-box {
+    position: relative;
+    padding: clamp(20px, 4vw, 30px);
+    margin-bottom: 16px;
+    border-left: 4px solid var(--sage);
+    border-radius: 0 18px 18px 0;
+    background: linear-gradient(90deg, rgba(37,48,41,.95), rgba(31,45,40,.75));
+    color: var(--cream-dim);
+    line-height: 1.75;
+  }
+  .anchor-box::before {
+    content: '// FIELD LOG';
+    position: absolute;
+    left: 18px;
+    top: -10px;
+    background: var(--bg);
+    color: var(--sage);
+    font-family: 'Trebuchet MS', Arial, sans-serif;
+    font-size: .62rem;
+    letter-spacing: .16em;
+    padding: 0 .45rem;
+  }
+  .question-list { list-style: none; padding: 0; margin: 10px 0 0; }
+  .question-list li {
+    display: grid;
+    grid-template-columns: 26px 1fr;
+    gap: 10px;
+    padding: 12px 0;
+    color: var(--text-muted);
+    border-top: 1px solid rgba(132,181,159,.14);
+    line-height: 1.55;
+  }
+  .question-list li::before {
+    content: '?';
+    width: 24px; height: 24px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    color: var(--sage);
+    border: 1px solid var(--border);
+    font-family: 'Trebuchet MS', Arial, sans-serif;
+  }
+
+  .tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .tier-card { border-radius: 18px; padding: 18px; border: 1px solid transparent; min-height: 150px; }
+  .tier-bounded { background: rgba(44,95,45,.17); border-color: rgba(93,168,94,.36); }
+  .tier-threshold { background: rgba(184,115,51,.13); border-color: rgba(212,146,79,.36); }
+  .tier-full { background: rgba(74,59,107,.26); border-color: rgba(155,141,200,.38); }
+  .tier-name { font-size: .8rem; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 10px; font-weight: 700; }
+  .tier-bounded .tier-name { color: var(--green-light); }
+  .tier-threshold .tier-name { color: var(--copper-light); }
+  .tier-full .tier-name { color: var(--purple-light); }
+  .tier-label { color: var(--text-muted); line-height: 1.58; font-size: .92rem; }
+
+  .reflection-card {
+    background: var(--paper);
+    color: #203028;
+    border-radius: 18px;
+    padding: 20px;
+    border: 1px solid rgba(75,88,64,.26);
+    background-image: radial-gradient(rgba(67,83,60,.28) 1px, transparent 1px);
+    background-size: 18px 18px;
+    margin-bottom: 16px;
+  }
+  .reflection-card strong { display: block; font-family: 'Trebuchet MS', Arial, sans-serif; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+  .reflection-lines {
+    height: 90px;
+    background: repeating-linear-gradient(to bottom, transparent, transparent 27px, rgba(67,83,60,.34) 28px);
+    margin-top: 12px;
+  }
+
+  .case-block { margin-bottom: 16px; }
+  .case-scenario {
+    color: var(--cream-dim);
+    line-height: 1.7;
+    background: rgba(37,48,41,.75);
+    border: 1px solid rgba(132,181,159,.16);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .tier-options { display: flex; flex-wrap: wrap; gap: 10px; }
+  .tier-btn {
+    border-radius: 999px;
+    background: transparent;
+    padding: .64rem .95rem;
+    cursor: pointer;
+    font-size: .76rem;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+  }
+  .tier-btn.b { color: var(--green-light); border: 1px solid rgba(93,168,94,.5); }
+  .tier-btn.t { color: var(--copper-light); border: 1px solid rgba(212,146,79,.5); }
+  .tier-btn.f { color: var(--purple-light); border: 1px solid rgba(155,141,200,.5); }
+  .tier-btn[aria-pressed="true"] { background: rgba(132,181,159,.16); color: var(--cream); border-color: var(--sage); }
+  .answer-reveal {
+    margin-top: 12px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    line-height: 1.6;
+    color: var(--cream-dim);
+    border: 1px solid rgba(132,181,159,.2);
+    background: rgba(16,23,19,.58);
+  }
+  .answer-reveal.correct { border-color: rgba(93,168,94,.5); background: rgba(44,95,45,.18); }
+  .answer-reveal.incorrect { border-color: rgba(212,146,79,.48); background: rgba(184,115,51,.13); }
+
+  .completion-block {
+    text-align: center;
+    padding: clamp(24px, 5vw, 44px);
+    border-radius: 22px;
+    border: 1px solid var(--border-strong);
+    background:
+      radial-gradient(circle at center, rgba(132,181,159,.10), transparent 44%),
+      rgba(37,48,41,.78);
+    margin-bottom: 18px;
+  }
+  .completion-block .big { font-size: 3rem; color: var(--sage); margin-bottom: 12px; }
+  .completion-block h3 { margin: 0 0 8px; text-transform: uppercase; letter-spacing: .06em; }
+  .completion-block p { color: var(--text-muted); margin: 0; line-height: 1.6; }
+
+  .step-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    border-top: 1px solid var(--border);
+    padding-top: 22px;
+    margin-top: 24px;
+  }
+
+  .mini-note {
+    color: var(--text-muted);
+    font-size: .86rem;
+    line-height: 1.6;
+    margin-top: 18px;
+  }
+
+  @media (max-width: 920px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .impact-legend, .tier-grid { grid-template-columns: 1fr; }
+    .hero { min-height: auto; }
+  }
+  @media (max-width: 640px) {
+    #app { width: min(100% - 20px, 1120px); padding-top: 18px; }
+    .topbar { align-items: flex-start; flex-direction: column; }
+    .lang-bar { justify-content: flex-start; }
+    .grid { grid-template-columns: 1fr; }
+    .step-pip { width: 34px; }
+    .lesson-nav, .step-nav { flex-direction: column; align-items: stretch; }
+    .breadcrumb { order: 2; }
+    .vine-left, .vine-right, .decor-orbits { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<div class="hud-scanline" aria-hidden="true"></div>
+<div class="decor-orbits" aria-hidden="true"></div>
+<svg class="vine-left" viewBox="0 0 70 900" aria-hidden="true"><path d="M34 0 C10 110 58 210 31 320 C6 430 60 540 32 650 C9 760 55 840 36 900" stroke="#84B59F" stroke-width="1.4" fill="none"/><g fill="#84B59F"><ellipse cx="19" cy="130" rx="10" ry="5" transform="rotate(-30 19 130)"/><ellipse cx="48" cy="245" rx="12" ry="6" transform="rotate(22 48 245)"/><ellipse cx="18" cy="410" rx="13" ry="6" transform="rotate(-25 18 410)"/><ellipse cx="49" cy="612" rx="12" ry="6" transform="rotate(22 49 612)"/></g><g fill="#2C5F2D"><circle cx="34" cy="90" r="6"/><circle cx="39" cy="360" r="5"/><circle cx="29" cy="700" r="7"/></g></svg>
+<svg class="vine-right" viewBox="0 0 70 900" aria-hidden="true"><path d="M34 0 C10 110 58 210 31 320 C6 430 60 540 32 650 C9 760 55 840 36 900" stroke="#84B59F" stroke-width="1.4" fill="none"/><g fill="#84B59F"><ellipse cx="19" cy="130" rx="10" ry="5" transform="rotate(-30 19 130)"/><ellipse cx="48" cy="245" rx="12" ry="6" transform="rotate(22 48 245)"/><ellipse cx="18" cy="410" rx="13" ry="6" transform="rotate(-25 18 410)"/><ellipse cx="49" cy="612" rx="12" ry="6" transform="rotate(22 49 612)"/></g><g fill="#2C5F2D"><circle cx="34" cy="90" r="6"/><circle cx="39" cy="360" r="5"/><circle cx="29" cy="700" r="7"/></g></svg>
+
+<div id="app">
+  <div class="topbar">
+    <div class="brand" data-i18n="brand">Solarpunk: Beijing · Citizen Science</div>
+    <div class="lang-bar" role="group" aria-label="Language selector">
+      <button class="lang-btn" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-btn" data-lang="fr" aria-pressed="false">FR</button>
+      <button class="lang-btn" data-lang="zh" aria-pressed="false">中文</button>
+      <button class="lang-btn" data-lang="es" aria-pressed="false">ES</button>
+    </div>
+  </div>
+
+  <main id="main">
+    <section id="home-view" aria-labelledby="home-title">
+      <header class="hero">
+        <div class="hero-inner">
+          <p class="eyebrow" data-i18n="eyebrow">Framework micro-lessons</p>
+          <h1 id="home-title">The <span>TCSP</span> Framework</h1>
+          <p data-i18n="heroCopy">Eight components that help you design, evaluate, and deepen the impact of meaningful citizen science projects. Select a component below to begin your micro-lesson.</p>
+          <div class="data-stream" aria-hidden="true"><span>TCSP-001 · CONTEXT ◦ CITIZEN ENGAGEMENT ◦ SCIENTIFIC QUESTION ◦ DATA QUALITY ◦ DATA ANALYSIS ◦ OUTCOMES ◦ COMMUNICATION ◦ SUSTAINABILITY · BOUNDED ◦ THRESHOLD ◦ FULL CYCLE · TCSP-001 · CONTEXT ◦ CITIZEN ENGAGEMENT ◦ SCIENTIFIC QUESTION ◦ DATA QUALITY ◦ DATA ANALYSIS ◦ OUTCOMES ◦ COMMUNICATION ◦ SUSTAINABILITY · </span></div>
+        </div>
+      </header>
+
+      <section class="home-section" aria-labelledby="impact-title">
+        <div class="section-header">
+          <div>
+            <h2 id="impact-title" data-i18n="impactTitle">Impact levels</h2>
+            <p data-i18n="impactIntro">Use these three levels to calibrate the depth of a citizen science project.</p>
+          </div>
+        </div>
+        <div class="impact-legend">
+          <article class="impact-card"><strong><span class="dot" style="background:#5da85e"></span><span data-i18n="bounded">Bounded</span></strong><p data-i18n="boundedDesc">Data collection only. Students contribute, but have limited agency over the project.</p></article>
+          <article class="impact-card"><strong><span class="dot" style="background:#d4924f"></span><span data-i18n="threshold">Threshold</span></strong><p data-i18n="thresholdDesc">Some analysis or interpretation. Students begin to make meaning from the data.</p></article>
+          <article class="impact-card"><strong><span class="dot" style="background:#9b8dc8"></span><span data-i18n="fullCycle">Full Cycle</span></strong><p data-i18n="fullDesc">Co-design, dissemination, and evaluation. Students shape the work and its destination.</p></article>
+        </div>
+      </section>
+
+      <section class="home-section" aria-labelledby="component-title">
+        <div class="section-header">
+          <div>
+            <h2 id="component-title" data-i18n="chooseComponent">Choose a component</h2>
+            <p data-i18n="chooseIntro">Each micro-lesson follows five stages: notice, learn, deepen, test, apply.</p>
+          </div>
+        </div>
+        <div class="grid" id="component-grid"></div>
+        <p class="mini-note" data-i18n="langNote">Language toggle translates the navigation, interface, lesson questions, case studies, and answer options. English remains the source version for classroom consistency.</p>
+      </section>
+    </section>
+
+    <section id="lesson-view" hidden aria-labelledby="lesson-title">
+      <nav class="lesson-nav" aria-label="Lesson navigation">
+        <button class="btn" id="back-home">← <span data-i18n="allComponents">All components</span></button>
+        <div class="breadcrumb" id="lesson-breadcrumb">TCSP Framework</div>
+      </nav>
+      <article class="lesson-shell">
+        <header class="lesson-header">
+          <p class="lesson-eyebrow" id="lesson-eyebrow">Component 01 · TCSP Framework</p>
+          <h2 class="lesson-title" id="lesson-title">Context Awareness</h2>
+          <p class="lesson-subtitle" id="lesson-subtitle"></p>
+          <div class="status-strip"><span class="status-dot"></span><span data-i18n="moduleActive">Module active · TCSP Framework</span></div>
+        </header>
+        <div class="lesson-body">
+          <div class="step-track" id="step-track" aria-label="Lesson progress"></div>
+          <div id="steps-container" aria-live="polite"></div>
+          <div class="step-nav">
+            <button class="btn" id="prev-step">← <span data-i18n="previous">Previous</span></button>
+            <button class="btn btn-primary" id="next-step"><span data-i18n="continue">Continue</span> →</button>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+</div>
+
+<script>
+const COMPONENTS = [
+  {
+    id: 1, key: 'context', col: 'col-green',
+    title: 'Context Awareness',
+    short: 'Reading the landscape your project lives in.',
+    description: 'Understanding the ecological, social, and political landscape in which the project operates.',
+    anchor: {
+      title: 'The Canal That Nobody Mapped',
+      text: 'A student notices a stretch of canal near their school that locals use for washing vegetables. They upload 200 photos of water colour over four weeks to a national database. They write a closing statement about having contributed to water monitoring in their city. They do not research local policies on canal use, speak with residents about how the canal has changed, or look at historical data on this waterway.',
+      consider: ['Is this student aware of the full context of their research site?', 'What do they know about who uses this space, and why?', 'What\'s missing that would make their findings more meaningful?']
+    },
+    tiers: {
+      bounded: 'Student observes and documents conditions at the site without investigating historical, social, or policy context.',
+      threshold: 'Student researches background information on the site, including local land use, ecological history, or community significance.',
+      full: 'Student co-investigates context with community members, triangulates across sources, and uses findings to shape research questions.'
+    },
+    extension: 'Context Awareness asks: who knows this place, and what do they know that data alone cannot tell you? Think about one site near your school. What would a local resident know about it that wouldn\'t appear in any dataset?',
+    cases: [
+      {
+        scenario: 'Students measure air quality readings around their school campus using sensors. They submit data to a national platform without researching industrial history in the area or speaking to long-term residents.',
+        answer: 'b',
+        explanation: 'This is Bounded — students are collecting data at a site without investigating the social, historical, or political context that might explain or deepen what they find.'
+      },
+      {
+        scenario: 'Students interview elderly residents about how the river near school has changed over 40 years, cross-reference with historical maps, and use this to contextualise their water quality measurements before presenting findings to the local environmental bureau.',
+        answer: 'f',
+        explanation: 'This is Full Cycle — students are co-investigating context with community members, drawing on multiple knowledge types, and connecting findings to civic action.'
+      }
+    ],
+    review: 'Context Awareness is about understanding the full ecosystem — ecological, social, and political — that surrounds your project site. A high-impact project treats place as layered, not just measurable.'
+  },
+  {
+    id: 2, key: 'citizen', col: 'col-sage',
+    title: 'Citizen Engagement',
+    short: 'How deeply do citizens participate in the work?',
+    description: 'The degree to which citizens are involved in designing, carrying out, and interpreting the project.',
+    anchor: {
+      title: 'The iNaturalist Upload',
+      text: 'A student uploads 400 plant observations to iNaturalist over three weeks following an Earth Day campaign. They do not gather additional contextual data, do not analyse patterns from the app, and do not work with other students or community members. They end their project with a short statement about having contributed to ecological records in their city.',
+      consider: ['Is this project successful?', 'What feels missing from this student\'s involvement?', 'Who benefits from this project, and how?']
+    },
+    tiers: {
+      bounded: 'Students collect data for a teacher-designed or externally designed project. Roles are pre-assigned; there is little agency over questions or methods.',
+      threshold: 'Students have some say in data collection methods or site selection; they may analyse or interpret data produced by the group.',
+      full: 'Students design their own monitoring routes, analyse patterns, and present findings to a real audience — school facilities team, local government, or community group.'
+    },
+    extension: 'Citizen Engagement is about more than showing up. It asks: how much agency do participants have over the questions being asked, the methods being used, and the audiences being reached? Consider: at what point does a student become a co-investigator rather than a data-gatherer?',
+    cases: [
+      {
+        scenario: 'Students collect insect data along pre-designed routes for a teacher-designed biodiversity study. They submit their tally sheets at the end of each session.',
+        answer: 'b',
+        explanation: 'Bounded — students are participating in a teacher-designed project. Their role is to collect data; design, interpretation, and dissemination sit elsewhere.'
+      },
+      {
+        scenario: 'Students design their own monitoring routes after identifying which green spaces feel most neglected. They analyse seasonal patterns, then present their findings and recommendations directly to the school facilities manager.',
+        answer: 'f',
+        explanation: 'Full Cycle — students have agency over the research question, method, and real-world destination of their findings.'
+      }
+    ],
+    review: 'Citizen Engagement measures how involved participants are in decision-making and interpretation — not just data collection. Moving from Bounded to Full Cycle means shifting from contributor to co-investigator.'
+  },
+  {
+    id: 3, key: 'scientific', col: 'col-copper',
+    title: 'Scientific Question',
+    short: 'Is the question worth asking — and answerable?',
+    description: 'The clarity, rigour, and relevance of the driving research question at the heart of the project.',
+    anchor: {
+      title: 'The Vague Survey',
+      text: 'A class decides they want to study "pollution in Beijing." They design a paper survey asking people in their neighbourhood whether they think air quality has improved. They collect 30 responses over two weeks, tally the answers, and report that "most people think pollution is getting worse."',
+      consider: ['Is "most people think" a scientific finding?', 'What is actually being measured here?', 'How could this question become more specific and answerable?']
+    },
+    tiers: {
+      bounded: 'The project has a general topic but no clearly defined, measurable research question. Data collected may not connect to any stated hypothesis.',
+      threshold: 'A research question is stated, but it is either too broad to test or not connected to a clear method. Some attempt to gather relevant evidence.',
+      full: 'A precise, answerable question drives the project. Variables are identified. Method is designed to collect data that can actually address the question.'
+    },
+    extension: 'A good scientific question is specific enough to be tested, relevant enough to matter, and open enough to produce a genuine answer. Try reformulating a vague topic — "plastic waste" — into a testable question for your school site.',
+    cases: [
+      {
+        scenario: 'Students want to investigate "how healthy the local river is." They visit the river once, take some photos, and write a report describing what they saw.',
+        answer: 'b',
+        explanation: 'Bounded — there is no defined research question or method. Observations are informal and not connected to a measurable claim.'
+      },
+      {
+        scenario: 'Students ask: "Does macroinvertebrate diversity differ between upstream and downstream of the school outlet pipe?" They sample three sites twice monthly using standardised kick-sampling and analyse species richness over time.',
+        answer: 'f',
+        explanation: 'Full Cycle — the question is precise, testable, and connected to a rigorous, repeatable method that produces analysable data.'
+      }
+    ],
+    review: 'The quality of a citizen science project depends enormously on the quality of the question driving it. A question that is testable, specific, and connected to real evidence transforms data collection into genuine inquiry.'
+  },
+  {
+    id: 4, key: 'data-quality', col: 'col-purple',
+    title: 'Data Quality & Management',
+    short: 'How reliable, consistent, and traceable is the data?',
+    description: 'The accuracy, consistency, and responsible management of the data gathered throughout the project.',
+    anchor: {
+      title: 'The Unsynchronised Spreadsheet',
+      text: 'Three groups collect bird count data at different times of day using different observation windows. One group uses a shared spreadsheet; two record on paper and photograph their notes. When the class tries to combine results, dates are in different formats, species names are inconsistently spelled, and one group\'s totals do not match their raw observations.',
+      consider: ['What went wrong before anyone started collecting data?', 'What agreements should have been made in advance?', 'Could these findings be trusted or published anywhere?']
+    },
+    tiers: {
+      bounded: 'Data is collected informally. There are no shared protocols, metadata is incomplete, and results would be difficult to verify or reproduce.',
+      threshold: 'A data recording template exists. Students follow it with some consistency, but there are gaps in metadata or inconsistencies between groups.',
+      full: 'A clear data management protocol is established before collection begins. Metadata is complete, quality checks are built in, and data is stored in a format that could be shared with external partners.'
+    },
+    extension: 'Good data management isn\'t about perfection — it\'s about transparency. If someone else tried to reproduce your study using only what you recorded, could they? Design a one-page data protocol for a study of green space in your neighbourhood.',
+    cases: [
+      {
+        scenario: 'Students photograph litter along a street each Friday for six weeks. They upload images to a shared folder but use different file naming conventions and don\'t record time, weather, or exact location.',
+        answer: 'b',
+        explanation: 'Bounded — data is being collected, but without metadata, consistent protocols, or a management system. The data would be hard to analyse meaningfully or share.'
+      },
+      {
+        scenario: 'Students design a litter monitoring protocol before starting: they agree on survey zones, time windows, weather thresholds for recording, and use a standardised form with GPS coordinates. Data is reviewed weekly for consistency.',
+        answer: 'f',
+        explanation: 'Full Cycle — systematic protocols, metadata, quality checks, and a shared management system mean this data could be verified, published, or shared with city planners.'
+      }
+    ],
+    review: 'Data quality is what separates a record from evidence. Consistent protocols, complete metadata, and thoughtful management transform raw observations into something verifiable, shareable, and meaningful.'
+  },
+  {
+    id: 5, key: 'data-analysis', col: 'col-green',
+    title: 'Data Analysis',
+    short: 'What does the data actually tell you?',
+    description: 'The depth and rigour with which participants interpret, visualise, and draw conclusions from what they have collected.',
+    anchor: {
+      title: 'The Pie Chart That Ended There',
+      text: 'A group surveys 50 students about their daily plastic use and produces a pie chart showing that 62% use single-use plastic at least once a day. They present the chart at a school assembly. When asked what this means for the school, they reply: "It means a lot of people use plastic."',
+      consider: ['What is the difference between describing data and analysing it?', 'What questions should follow a finding like this?', 'What would a deeper analysis look like?']
+    },
+    tiers: {
+      bounded: 'Students present raw counts or simple summaries. No comparison, trend analysis, or interpretation is attempted.',
+      threshold: 'Students identify a pattern or comparison in the data and describe what they notice. Some attempt to explain why the pattern might exist.',
+      full: 'Students test a hypothesis against their data, visualise findings in multiple ways, consider alternative explanations, and connect their conclusions back to their original research question.'
+    },
+    extension: 'Analysis is the moment where data becomes meaning. It requires asking "so what?" after every finding. Take any number from a study you know — what would need to be true for that number to matter? What would need to be compared, contextualised, or explained?',
+    cases: [
+      {
+        scenario: 'Students count the number of bees observed in their school garden each week for a month and report: "We saw 12 bees in week one and 9 in week four."',
+        answer: 'b',
+        explanation: 'Bounded — students are summarising observations without attempting to identify a pattern, compare to a baseline, or explain the change.'
+      },
+      {
+        scenario: 'Students graph weekly bee counts against temperature and flowering plant density. They identify a correlation, consider whether it could be explained by other factors, and present findings alongside their uncertainty to the school garden committee.',
+        answer: 'f',
+        explanation: 'Full Cycle — students are testing a relationship, considering alternative explanations, visualising findings, and connecting analysis to a real audience and decision.'
+      }
+    ],
+    review: 'Analysis transforms a record into an argument. It requires comparison, context, and the courage to say what you think the data means — and why you might be wrong.'
+  },
+  {
+    id: 6, key: 'outcomes', col: 'col-copper',
+    title: 'Outcomes & Impact',
+    short: 'Did the project change anything that mattered?',
+    description: 'The real-world change produced by the project — for knowledge, community, environment, or policy.',
+    anchor: {
+      title: 'The Report That Sat in a Folder',
+      text: 'A class completes a thorough six-month air quality study. Their data is well-collected and their analysis is careful. They produce a written report. Their teacher submits it to the school office as evidence of a completed project. No one outside the school reads it. The following year, the same pollution hotspot is still unaddressed.',
+      consider: ['Was the project a success?', 'What was the intended outcome, and was it achieved?', 'What would it have taken to make the findings matter beyond the classroom?']
+    },
+    tiers: {
+      bounded: 'The project produces findings for an internal audience only — a grade, a display, or a teacher. There is no clear intended real-world outcome.',
+      threshold: 'Findings are shared beyond the classroom — on a platform, in a newsletter, or at an event — but there is no evidence of uptake or change.',
+      full: 'The project produces a documented outcome: a policy response, a change to a local space, a published dataset, or a community commitment. Impact is evaluated and reflected upon.'
+    },
+    extension: 'Impact doesn\'t require changing the world — but it does require having a named destination for your findings, and knowing whether you arrived. For a project you\'ve done or imagined: who is the audience, what would change if they engaged with your work, and how would you know?',
+    cases: [
+      {
+        scenario: 'Students complete a noise pollution study and create a poster for the school corridor. The poster stays up for two weeks, then is taken down at the end of term.',
+        answer: 'b',
+        explanation: 'Bounded — the project has an internal audience and no planned pathway to real-world change. The poster is a product, not an impact.'
+      },
+      {
+        scenario: 'Students present their noise pollution findings to the school facilities team and local council. The council requests the dataset for their transport planning review. Students follow up three months later to document whether their findings were used.',
+        answer: 'f',
+        explanation: 'Full Cycle — there is a named external audience, a pathway to decision-making, and a follow-up evaluation of whether impact occurred.'
+      }
+    ],
+    review: 'Outcomes and impact are about what changed because of the project — not just what was produced. A Full Cycle project names its audience before collecting a single data point, and evaluates whether the findings reached them.'
+  },
+  {
+    id: 7, key: 'communication', col: 'col-sage',
+    title: 'Communication & Dissemination',
+    short: 'Who receives your findings, and how?',
+    description: 'The quality and reach of how findings are shared — with what audience, in what format, and through what channels.',
+    anchor: {
+      title: 'The Slide Deck That Stayed Private',
+      text: 'A group of students produces a polished presentation on urban heat island data near their school. The slides are carefully designed and the findings are genuinely interesting. They present to their class and their teacher, receive positive feedback, and submit the presentation as their project deliverable. No one outside the room ever encounters the findings.',
+      consider: ['Was this communication, or just presentation?', 'Who else might care about these findings?', 'What format would work best for each different audience?']
+    },
+    tiers: {
+      bounded: 'Findings are communicated to an internal school audience only. Format is presentation or report; no external channel or audience is considered.',
+      threshold: 'Findings are shared with an external audience — on social media, a public platform, or an event. The format is appropriate but there is no evidence of engagement or response.',
+      full: 'Findings are shared with a specific named audience in a format designed for that audience. Evidence of engagement, uptake, or response is collected and reflected upon.'
+    },
+    extension: 'Different findings need different containers. A map works for spatial data. A letter works for a policymaker. A short video works for a community group that doesn\'t read reports. Consider one finding from a project you know — what is the best format for it, and who is the best audience?',
+    cases: [
+      {
+        scenario: 'Students post their park biodiversity findings on the school Instagram account. The post receives 14 likes, mostly from other students and parents.',
+        answer: 't',
+        explanation: 'Threshold — findings have been shared with an external audience, but the format and channel were not designed for a specific decision-making audience, and there is no follow-up on whether the findings influenced anyone.'
+      },
+      {
+        scenario: 'Students produce a two-page briefing on park biodiversity designed specifically for the Beijing Parks Bureau. They attend a meeting, present their key finding, leave the briefing, and follow up two months later to ask whether the data was used.',
+        answer: 'f',
+        explanation: 'Full Cycle — a specific external audience, a format designed for that audience, a real encounter, and an evaluation of uptake.'
+      }
+    ],
+    review: 'Communication and Dissemination is not about posting — it\'s about reaching the right people with findings they can use. Full Cycle dissemination designs the format, channel, and follow-up before the project ends.'
+  },
+  {
+    id: 8, key: 'sustainability', col: 'col-purple',
+    title: 'Project Sustainability',
+    short: 'Could this continue without you?',
+    description: 'Whether the project has the conditions, structures, and community investment to continue beyond a single cycle.',
+    anchor: {
+      title: 'The Monitoring Station That Went Quiet',
+      text: 'A class spends one term setting up an air quality monitoring station on the school roof. They collect excellent data, publish findings, and receive recognition from a local environmental NGO. At the end of the year, the founding students graduate. No one has been trained to operate the station. Eighteen months later, the station has not been updated and the data record stops.',
+      consider: ['Was this project designed to last?', 'What would sustainability have required from the beginning?', 'Who benefits when a project disappears?']
+    },
+    tiers: {
+      bounded: 'The project exists for one cycle and ends. There is no plan for continuation, knowledge transfer, or community ownership.',
+      threshold: 'Some effort is made to document the project or share materials so others could continue it, but no ongoing relationship or structure is established.',
+      full: 'The project is handed over to a partner organisation, a younger cohort, or a community group with training, documentation, and an agreed continuation plan. The project runs beyond the original participants.'
+    },
+    extension: 'Sustainability requires designing for your own departure. What would you need to hand over — not just data, but knowledge, relationships, and momentum — for a project you started to keep running without you?',
+    cases: [
+      {
+        scenario: 'A Year 10 class completes a water quality study. Their data is uploaded to a shared platform and their teacher files the report. No Year 9 students are trained; the monitoring site is not visited again.',
+        answer: 'b',
+        explanation: 'Bounded — the project ends with its original cohort. There is no continuity plan, knowledge transfer, or community ownership.'
+      },
+      {
+        scenario: 'Year 10 students train a Year 9 cohort, co-design a simplified monitoring guide, connect them with the community partner who supported the original study, and check in after three months to see whether monitoring has continued.',
+        answer: 'f',
+        explanation: 'Full Cycle — the project has been designed for continuation. Knowledge, relationships, and momentum transfer to new participants with support built in.'
+      }
+    ],
+    review: 'Sustainability is about building projects that outlive you. Full Cycle projects plan for their own handover from the beginning — identifying who will carry the work, what they will need, and how the relationship will be maintained.'
+  }
+];
+
+const UI = {
+  en: {
+    brand:'Solarpunk: Beijing · Citizen Science', eyebrow:'Framework micro-lessons', heroCopy:'Eight components that help you design, evaluate, and deepen the impact of meaningful citizen science projects. Select a component below to begin your micro-lesson.', impactTitle:'Impact levels', impactIntro:'Use these three levels to calibrate the depth of a citizen science project.', bounded:'Bounded', threshold:'Threshold', fullCycle:'Full Cycle', boundedDesc:'Data collection only. Students contribute, but have limited agency over the project.', thresholdDesc:'Some analysis or interpretation. Students begin to make meaning from the data.', fullDesc:'Co-design, dissemination, and evaluation. Students shape the work and its destination.', chooseComponent:'Choose a component', chooseIntro:'Each micro-lesson follows five stages: notice, learn, deepen, test, apply.', langNote:'Language toggle translates the navigation, interface, lesson questions, case studies, and answer options. English remains the source version for classroom consistency.', allComponents:'All components', moduleActive:'Module active · TCSP Framework', previous:'Previous', continue:'Continue', backToComponents:'Back to components', component:'Component', start:'Start micro-lesson', stages:['Notice the problem','Learn the scale','Go deeper','Test your judgement','Apply it to your project'], anchor:'Notice the problem', anchorHelp:'Read the scenario below carefully. What does this project do well, and what might still be missing?', consider:'Consider', noWrong:'Take a moment to think before continuing. There is no wrong answer yet; just observe what you notice.', levels:'Learn the scale', howMeasure:'How do we measure impact for', levelsCopy:'In citizen science, we can look at three levels of involvement and impact. Each level describes how deeply this component is embedded in the project.', shiftCopy:'Notice how each level shifts who has agency and what kind of thinking is required. Moving from Bounded to Full Cycle means doing the work differently, not only doing more of it.', deepen:'Go deeper', reallyMean:'What does this component really mean?', reflectPrompt:'Reflection prompt', reflectCopy:'Think about a project happening in your school or community right now, or one you could imagine starting in Beijing. Where does it sit on this spectrum? What would it take to move it up one level?', anchorReturn:'Return to the opening scenario', anchorReturnCopy:'Now that you understand the three levels, which would you assign to the scenario at the beginning? What is the strongest sign of that level? What single change would shift it upward?', cases:'Test your judgement', classify:'Classify each scenario', classifyCopy:'Read each scenario. Decide whether it represents Bounded, Threshold, or Full Cycle impact for this component.', scenario:'Scenario', correct:'Good judgement', incorrect:'Useful attempt', review:'Apply it to your project', complete:'micro-lesson complete', keyIdea:'Key idea', journalTransfer:'Journal transfer', journalTransferCopy:'In your student journal, write one sentence beginning: “This component made me notice…” Then connect it to a real place, person, dataset, or decision in your neighbourhood.', lessonContentNote:'This lesson is translated from the English source version used in the shared project journal.'
+  },
+  fr: {
+    brand:'Solarpunk : Beijing · Science citoyenne', eyebrow:'Micro-leçons du cadre', heroCopy:'Huit composantes pour concevoir, évaluer et approfondir l’impact des projets de science citoyenne. Choisissez une composante pour commencer.', impactTitle:'Niveaux d’impact', impactIntro:'Utilisez ces trois niveaux pour calibrer la profondeur d’un projet de science citoyenne.', bounded:'Limité', threshold:'Intermédiaire', fullCycle:'Cycle complet', boundedDesc:'Collecte de données seulement. Les élèves contribuent, mais ont peu d’agence dans le projet.', thresholdDesc:'Analyse ou interprétation partielle. Les élèves commencent à donner du sens aux données.', fullDesc:'Co-conception, diffusion et évaluation. Les élèves orientent le travail et sa destination.', chooseComponent:'Choisir une composante', chooseIntro:'Chaque micro-leçon suit cinq étapes : observer, apprendre, approfondir, juger, appliquer.', langNote:'Le changement de langue traduit la navigation, l’interface, les questions de leçon, les études de cas et les choix de réponse. L’anglais reste la version source pour la cohérence en classe.', allComponents:'Toutes les composantes', moduleActive:'Module actif · Cadre TCSP', previous:'Précédent', continue:'Continuer', backToComponents:'Retour aux composantes', component:'Composante', start:'Commencer la micro-leçon', stages:['Observer le problème','Apprendre l’échelle','Approfondir','Tester son jugement','Appliquer au projet'], anchor:'Observer le problème', anchorHelp:'Lisez le scénario attentivement. Qu’est-ce que ce projet fait bien, et que manque-t-il encore ?', consider:'À considérer', noWrong:'Prenez un moment pour réfléchir. Il n’y a pas encore de mauvaise réponse ; observez simplement ce que vous remarquez.', levels:'Apprendre l’échelle', howMeasure:'Comment mesurer l’impact pour', levelsCopy:'En science citoyenne, nous pouvons examiner trois niveaux d’implication et d’impact.', shiftCopy:'Remarquez comment chaque niveau modifie l’agence des participants et le type de réflexion demandé.', deepen:'Approfondir', reallyMean:'Que signifie vraiment cette composante ?', reflectPrompt:'Invitation à réfléchir', reflectCopy:'Pensez à un projet dans votre école ou votre communauté. Où se situe-t-il sur ce spectre ? Que faudrait-il pour monter d’un niveau ?', anchorReturn:'Retour au scénario de départ', anchorReturnCopy:'Maintenant que vous connaissez les trois niveaux, lequel attribueriez-vous au scénario initial ?', cases:'Tester son jugement', classify:'Classer chaque scénario', classifyCopy:'Lisez chaque scénario et décidez s’il représente un impact limité, intermédiaire ou en cycle complet.', scenario:'Scénario', correct:'Bon jugement', incorrect:'Tentative utile', review:'Appliquer au projet', complete:'micro-leçon terminée', keyIdea:'Idée clé', journalTransfer:'Transfert vers le journal', journalTransferCopy:'Dans votre journal, écrivez une phrase commençant par : « Cette composante m’a fait remarquer… » Puis reliez-la à un lieu, une personne, des données ou une décision dans votre quartier.', lessonContentNote:'Cette leçon est traduite à partir de la version anglaise utilisée dans le journal commun du projet.'
+  },
+  zh: {
+    brand:'太阳朋克：北京 · 公民科学', eyebrow:'框架微课程', heroCopy:'八个组成部分帮助你设计、评估并深化有意义的公民科学项目影响。请选择一个组成部分开始学习。', impactTitle:'影响层级', impactIntro:'用这三个层级判断公民科学项目的参与深度和影响深度。', bounded:'有限参与', threshold:'进阶参与', fullCycle:'完整循环', boundedDesc:'只进行数据收集。学生有贡献，但对项目的决定权有限。', thresholdDesc:'进行部分分析或解释。学生开始从数据中建构意义。', fullDesc:'共同设计、传播与评估。学生能够影响项目过程和成果去向。', chooseComponent:'选择组成部分', chooseIntro:'每个微课程包含五步：观察、学习、深化、判断、应用。', langNote:'语言切换会翻译导航、界面、课程问题、案例和答案选项。英文仍作为课堂一致性的源版本。', allComponents:'所有组成部分', moduleActive:'模块运行中 · TCSP框架', previous:'上一步', continue:'继续', backToComponents:'返回组成部分', component:'组成部分', start:'开始微课程', stages:['观察问题','学习层级','深入理解','测试判断','应用到项目'], anchor:'观察问题', anchorHelp:'仔细阅读情境。这个项目做得好的地方是什么？还缺少什么？', consider:'思考', noWrong:'先停下来想一想。现在没有错误答案；只需要观察你注意到的内容。', levels:'学习层级', howMeasure:'如何衡量这一组成部分的影响：', levelsCopy:'在公民科学中，我们可以从三个层级看参与和影响的深度。', shiftCopy:'注意每个层级如何改变学生的主动性和思考方式。从有限参与走向完整循环，不只是做更多，而是以不同方式做。', deepen:'深入理解', reallyMean:'这个组成部分真正意味着什么？', reflectPrompt:'反思提示', reflectCopy:'想一想你学校或社区中的一个项目，或你可以在北京想象的一个项目。它属于哪个层级？怎样才能提升一个层级？', anchorReturn:'回到开头情境', anchorReturnCopy:'现在你了解了三个层级，你会把开头的情境归为哪一类？最明显的依据是什么？', cases:'测试判断', classify:'判断每个情境', classifyCopy:'阅读每个情境，判断它属于有限参与、进阶参与还是完整循环。', scenario:'情境', correct:'判断准确', incorrect:'有价值的尝试', review:'应用到你的项目', complete:'微课程完成', keyIdea:'核心观点', journalTransfer:'转入学习手册', journalTransferCopy:'在学生手册中写一句话：“这个组成部分让我注意到……” 然后把它连接到你社区中的地点、人物、数据或决定。', lessonContentNote:'本课程翻译自共享项目手册中使用的英文源版本。'
+  },
+  es: {
+    brand:'Solarpunk: Pekín · Ciencia ciudadana', eyebrow:'Microlecciones del marco', heroCopy:'Ocho componentes que te ayudan a diseñar, evaluar y profundizar el impacto de proyectos significativos de ciencia ciudadana. Elige un componente para comenzar.', impactTitle:'Niveles de impacto', impactIntro:'Usa estos tres niveles para calibrar la profundidad de un proyecto de ciencia ciudadana.', bounded:'Limitado', threshold:'Intermedio', fullCycle:'Ciclo completo', boundedDesc:'Solo recolección de datos. El alumnado contribuye, pero tiene poca agencia sobre el proyecto.', thresholdDesc:'Algo de análisis o interpretación. El alumnado empieza a construir significado a partir de los datos.', fullDesc:'Codiseño, difusión y evaluación. El alumnado da forma al trabajo y a su destino.', chooseComponent:'Elige un componente', chooseIntro:'Cada microlección sigue cinco etapas: observar, aprender, profundizar, juzgar, aplicar.', langNote:'El selector traduce la navegación, la interfaz, las preguntas de la lección, los estudios de caso y las opciones de respuesta. El inglés sigue siendo la versión base para la coherencia en clase.', allComponents:'Todos los componentes', moduleActive:'Módulo activo · Marco TCSP', previous:'Anterior', continue:'Continuar', backToComponents:'Volver a componentes', component:'Componente', start:'Comenzar microlección', stages:['Observar el problema','Aprender la escala','Profundizar','Probar tu juicio','Aplicar al proyecto'], anchor:'Observar el problema', anchorHelp:'Lee el escenario con atención. ¿Qué hace bien este proyecto y qué podría faltar?', consider:'Considera', noWrong:'Tómate un momento para pensar. Todavía no hay una respuesta incorrecta; solo observa lo que notas.', levels:'Aprender la escala', howMeasure:'¿Cómo medimos el impacto de', levelsCopy:'En ciencia ciudadana podemos observar tres niveles de participación e impacto.', shiftCopy:'Observa cómo cada nivel cambia quién tiene agencia y qué tipo de pensamiento se requiere.', deepen:'Profundizar', reallyMean:'¿Qué significa realmente este componente?', reflectPrompt:'Pregunta de reflexión', reflectCopy:'Piensa en un proyecto de tu escuela o comunidad. ¿Dónde se sitúa en este espectro? ¿Qué necesitaría para subir un nivel?', anchorReturn:'Volver al escenario inicial', anchorReturnCopy:'Ahora que conoces los tres niveles, ¿cuál asignarías al escenario inicial?', cases:'Probar tu juicio', classify:'Clasifica cada escenario', classifyCopy:'Lee cada escenario y decide si representa impacto limitado, intermedio o de ciclo completo.', scenario:'Escenario', correct:'Buen juicio', incorrect:'Intento útil', review:'Aplicar al proyecto', complete:'microlección completa', keyIdea:'Idea clave', journalTransfer:'Transferencia al diario', journalTransferCopy:'En tu diario, escribe una oración que empiece: “Este componente me hizo notar…” Luego conéctala con un lugar, una persona, un conjunto de datos o una decisión en tu barrio.', lessonContentNote:'Esta lección está traducida desde la versión base en inglés usada en el diario compartido del proyecto.'
+  }
+};
+
+const COMPONENT_TRANSLATIONS = {
+  fr: {
+    'Context Awareness':['Sensibilité au contexte','Lire le paysage dans lequel vit votre projet.'],
+    'Citizen Engagement':['Engagement citoyen','À quel point les citoyens participent-ils au travail ?'],
+    'Scientific Question':['Question scientifique','La question mérite-t-elle d’être posée, et peut-on y répondre ?'],
+    'Data Quality & Management':['Qualité et gestion des données','Les données sont-elles fiables, cohérentes et traçables ?'],
+    'Data Analysis':['Analyse des données','Que disent réellement les données ?'],
+    'Outcomes & Impact':['Résultats et impact','Le projet a-t-il changé quelque chose d’important ?'],
+    'Communication & Dissemination':['Communication et diffusion','Qui reçoit vos résultats, et comment ?'],
+    'Project Sustainability':['Durabilité du projet','Ce projet pourrait-il continuer sans vous ?']
+  },
+  zh: {
+    'Context Awareness':['情境意识','理解项目所在的生态、社会与政策环境。'],
+    'Citizen Engagement':['公民参与','公民在项目中参与得有多深入？'],
+    'Scientific Question':['科学问题','这个问题是否值得研究，并且可以回答？'],
+    'Data Quality & Management':['数据质量与管理','数据是否可靠、一致并可追溯？'],
+    'Data Analysis':['数据分析','数据真正说明了什么？'],
+    'Outcomes & Impact':['成果与影响','项目是否带来了重要改变？'],
+    'Communication & Dissemination':['交流与传播','谁会收到你的发现？通过什么方式？'],
+    'Project Sustainability':['项目可持续性','没有你，这个项目还能继续吗？']
+  },
+  es: {
+    'Context Awareness':['Conciencia del contexto','Leer el paisaje en el que vive tu proyecto.'],
+    'Citizen Engagement':['Participación ciudadana','¿Qué tan profundamente participan los ciudadanos?'],
+    'Scientific Question':['Pregunta científica','¿La pregunta vale la pena y se puede responder?'],
+    'Data Quality & Management':['Calidad y gestión de datos','¿Los datos son fiables, coherentes y trazables?'],
+    'Data Analysis':['Análisis de datos','¿Qué dicen realmente los datos?'],
+    'Outcomes & Impact':['Resultados e impacto','¿El proyecto cambió algo importante?'],
+    'Communication & Dissemination':['Comunicación y difusión','¿Quién recibe tus hallazgos y cómo?'],
+    'Project Sustainability':['Sostenibilidad del proyecto','¿Podría continuar este proyecto sin ti?']
+  }
+};
+
+const LESSON_TRANSLATIONS = {
+  "fr": {
+    "1": {
+      "description": "Comprendre le paysage écologique, social et politique dans lequel le projet se déroule.",
+      "anchor": {
+        "title": "Le canal que personne n’a cartographié",
+        "text": "Un élève remarque un tronçon de canal près de l’école que des habitants utilisent pour laver des légumes. Il téléverse 200 photos de la couleur de l’eau pendant quatre semaines dans une base nationale. Il écrit une conclusion expliquant qu’il a contribué au suivi de l’eau dans sa ville. Il ne recherche pas les politiques locales liées au canal, ne parle pas avec les habitants de ses changements et ne consulte pas de données historiques sur ce cours d’eau.",
+        "consider": [
+          "Cet élève comprend-il vraiment le contexte de son site de recherche ?",
+          "Que sait-il des personnes qui utilisent cet espace, et pourquoi ?",
+          "Que manque-t-il pour rendre ses résultats plus significatifs ?"
+        ]
+      },
+      "tiers": {
+        "bounded": "L’élève observe et documente les conditions du site sans étudier le contexte historique, social ou politique.",
+        "threshold": "L’élève recherche des informations de contexte sur le site, comme l’usage du sol, l’histoire écologique ou l’importance communautaire.",
+        "full": "L’élève étudie le contexte avec des membres de la communauté, croise plusieurs sources et utilise ces résultats pour orienter les questions de recherche."
+      },
+      "extension": "La sensibilité au contexte demande : qui connaît ce lieu, et que savent ces personnes que les données seules ne peuvent pas montrer ? Pensez à un site près de votre école. Que saurait un habitant local qui n’apparaîtrait dans aucun jeu de données ?",
+      "cases": [
+        {
+          "scenario": "Des élèves mesurent la qualité de l’air autour du campus avec des capteurs. Ils envoient les données sur une plateforme nationale sans étudier l’histoire industrielle du secteur ni parler aux habitants de longue date.",
+          "explanation": "C’est Limité : les élèves collectent des données sur un site sans examiner le contexte social, historique ou politique qui pourrait expliquer ou approfondir leurs observations."
+        },
+        {
+          "scenario": "Des élèves interrogent des habitants âgés sur l’évolution de la rivière près de l’école depuis 40 ans, comparent leurs récits avec des cartes historiques et utilisent cela pour contextualiser leurs mesures de qualité de l’eau avant de présenter leurs résultats au bureau local de l’environnement.",
+          "explanation": "C’est Cycle complet : les élèves co-étudient le contexte avec la communauté, mobilisent plusieurs types de savoirs et relient leurs résultats à une action civique."
+        }
+      ],
+      "review": "La sensibilité au contexte consiste à comprendre tout l’écosystème — écologique, social et politique — qui entoure le site du projet. Un projet à fort impact considère le lieu comme stratifié, pas seulement mesurable."
+    },
+    "2": {
+      "description": "Le degré auquel les citoyens participent à la conception, à la réalisation et à l’interprétation du projet.",
+      "anchor": {
+        "title": "Le téléversement iNaturalist",
+        "text": "Un élève téléverse 400 observations de plantes sur iNaturalist en trois semaines après une campagne pour le Jour de la Terre. Il ne recueille pas de données contextuelles supplémentaires, n’analyse pas les tendances de l’application et ne travaille pas avec d’autres élèves ni avec des membres de la communauté. Il termine par une courte déclaration sur sa contribution aux archives écologiques de sa ville.",
+        "consider": [
+          "Ce projet est-il réussi ?",
+          "Que manque-t-il dans l’implication de l’élève ?",
+          "Qui bénéficie de ce projet, et comment ?"
+        ]
+      },
+      "tiers": {
+        "bounded": "Les élèves collectent des données pour un projet conçu par l’enseignant ou par une organisation extérieure. Les rôles sont fixés à l’avance et l’agence sur les questions ou méthodes est limitée.",
+        "threshold": "Les élèves ont une certaine influence sur les méthodes de collecte ou le choix des sites ; ils peuvent analyser ou interpréter les données produites par le groupe.",
+        "full": "Les élèves conçoivent leurs propres itinéraires de suivi, analysent les tendances et présentent leurs résultats à un vrai public, comme l’équipe des installations, une autorité locale ou un groupe communautaire."
+      },
+      "extension": "L’engagement citoyen signifie plus que participer. Il demande : quelle agence les participants ont-ils sur les questions, les méthodes et les publics atteints ? À quel moment un élève devient-il co-enquêteur plutôt que simple collecteur de données ?",
+      "cases": [
+        {
+          "scenario": "Des élèves collectent des données sur les insectes le long d’itinéraires déjà définis pour une étude de biodiversité conçue par l’enseignant. Ils remettent leurs fiches de comptage à la fin de chaque séance.",
+          "explanation": "Limité : les élèves participent à un projet conçu par l’enseignant. Leur rôle est de collecter les données ; la conception, l’interprétation et la diffusion se trouvent ailleurs."
+        },
+        {
+          "scenario": "Des élèves conçoivent leurs propres itinéraires de suivi après avoir identifié les espaces verts qui semblent les plus négligés. Ils analysent les tendances saisonnières, puis présentent leurs résultats et recommandations directement au responsable des installations de l’école.",
+          "explanation": "Cycle complet : les élèves ont de l’agence sur la question de recherche, la méthode et la destination réelle de leurs résultats."
+        }
+      ],
+      "review": "L’engagement citoyen mesure l’implication des participants dans les décisions et l’interprétation, pas seulement dans la collecte de données. Passer de Limité à Cycle complet signifie passer de contributeur à co-enquêteur."
+    },
+    "3": {
+      "description": "La clarté, la rigueur et la pertinence de la question de recherche qui guide le projet.",
+      "anchor": {
+        "title": "L’enquête vague",
+        "text": "Une classe décide d’étudier « la pollution à Beijing ». Elle crée un questionnaire papier demandant aux habitants du quartier s’ils pensent que la qualité de l’air s’est améliorée. Elle collecte 30 réponses en deux semaines, compte les résultats et conclut que « la plupart des gens pensent que la pollution empire ».",
+        "consider": [
+          "« La plupart des gens pensent » est-il un résultat scientifique ?",
+          "Qu’est-ce qui est réellement mesuré ici ?",
+          "Comment rendre cette question plus précise et vérifiable ?"
+        ]
+      },
+      "tiers": {
+        "bounded": "Le projet a un thème général, mais pas de question de recherche claire et mesurable. Les données collectées peuvent ne pas être reliées à une hypothèse explicite.",
+        "threshold": "Une question de recherche est formulée, mais elle est trop large ou pas clairement reliée à une méthode. Il existe une tentative de recueillir des preuves pertinentes.",
+        "full": "Une question précise et vérifiable guide le projet. Les variables sont identifiées. La méthode est conçue pour recueillir des données qui répondent réellement à la question."
+      },
+      "extension": "Une bonne question scientifique est assez précise pour être testée, assez pertinente pour compter et assez ouverte pour produire une vraie réponse. Transformez un thème vague, comme « déchets plastiques », en question testable pour votre école.",
+      "cases": [
+        {
+          "scenario": "Des élèves veulent étudier « la santé de la rivière locale ». Ils visitent la rivière une fois, prennent quelques photos et rédigent un rapport descriptif.",
+          "explanation": "Limité : il n’y a pas de question de recherche définie ni de méthode. Les observations sont informelles et ne soutiennent pas une affirmation mesurable."
+        },
+        {
+          "scenario": "Des élèves demandent : « La diversité des macroinvertébrés diffère-t-elle en amont et en aval du tuyau de sortie de l’école ? » Ils échantillonnent trois sites deux fois par mois avec une méthode standardisée et analysent la richesse des espèces dans le temps.",
+          "explanation": "Cycle complet : la question est précise, testable et reliée à une méthode rigoureuse et répétable qui produit des données analysables."
+        }
+      ],
+      "review": "La qualité d’un projet de science citoyenne dépend fortement de la question qui le guide. Une question testable, précise et reliée à des preuves réelles transforme la collecte de données en véritable enquête."
+    },
+    "4": {
+      "description": "L’exactitude, la cohérence et la gestion responsable des données collectées pendant le projet.",
+      "anchor": {
+        "title": "Le tableur non synchronisé",
+        "text": "Trois groupes collectent des données de comptage d’oiseaux à différents moments de la journée et avec des durées d’observation différentes. Un groupe utilise un tableur partagé ; deux groupes écrivent sur papier et photographient leurs notes. Quand la classe tente de combiner les résultats, les dates ont des formats différents, les noms d’espèces sont écrits de plusieurs façons et les totaux d’un groupe ne correspondent pas aux observations brutes.",
+        "consider": [
+          "Qu’est-ce qui a mal tourné avant même la collecte ?",
+          "Quels accords auraient dû être pris à l’avance ?",
+          "Ces résultats pourraient-ils être fiables ou publiés ?"
+        ]
+      },
+      "tiers": {
+        "bounded": "Les données sont collectées de façon informelle. Il n’y a pas de protocole commun, les métadonnées sont incomplètes et les résultats seraient difficiles à vérifier ou reproduire.",
+        "threshold": "Un modèle d’enregistrement existe. Les élèves le suivent avec une certaine cohérence, mais il reste des lacunes dans les métadonnées ou des incohérences entre groupes.",
+        "full": "Un protocole clair de gestion des données est établi avant la collecte. Les métadonnées sont complètes, des contrôles qualité sont intégrés et les données sont stockées dans un format partageable avec des partenaires externes."
+      },
+      "extension": "Une bonne gestion des données ne vise pas la perfection ; elle vise la transparence. Si quelqu’un voulait reproduire votre étude uniquement avec vos notes, le pourrait-il ? Concevez un protocole d’une page pour étudier les espaces verts de votre quartier.",
+      "cases": [
+        {
+          "scenario": "Des élèves photographient les déchets le long d’une rue chaque vendredi pendant six semaines. Ils déposent les images dans un dossier partagé, mais utilisent des noms de fichiers différents et ne notent pas l’heure, la météo ou l’emplacement exact.",
+          "explanation": "Limité : des données sont collectées, mais sans métadonnées, protocole cohérent ou système de gestion. Elles seraient difficiles à analyser ou à partager."
+        },
+        {
+          "scenario": "Des élèves conçoivent un protocole de suivi des déchets avant de commencer : zones d’enquête, créneaux horaires, conditions météo à noter et formulaire standardisé avec coordonnées GPS. Les données sont vérifiées chaque semaine.",
+          "explanation": "Cycle complet : protocoles systématiques, métadonnées, contrôles qualité et système partagé rendent les données vérifiables, publiables ou partageables avec des urbanistes."
+        }
+      ],
+      "review": "La qualité des données sépare une simple trace d’une preuve. Des protocoles cohérents, des métadonnées complètes et une gestion réfléchie transforment des observations brutes en données vérifiables, partageables et significatives."
+    },
+    "5": {
+      "description": "La profondeur avec laquelle les participants interprètent, visualisent et tirent des conclusions de leurs données.",
+      "anchor": {
+        "title": "Le camembert qui s’arrête là",
+        "text": "Un groupe interroge 50 élèves sur leur usage quotidien du plastique et produit un camembert montrant que 62 % utilisent du plastique à usage unique au moins une fois par jour. Ils présentent le graphique lors d’une assemblée. Quand on leur demande ce que cela signifie pour l’école, ils répondent : « Cela veut dire que beaucoup de gens utilisent du plastique. »",
+        "consider": [
+          "Quelle est la différence entre décrire des données et les analyser ?",
+          "Quelles questions devraient suivre un tel résultat ?",
+          "À quoi ressemblerait une analyse plus approfondie ?"
+        ]
+      },
+      "tiers": {
+        "bounded": "Les élèves présentent des comptages bruts ou des résumés simples. Aucune comparaison, analyse de tendance ou interprétation n’est tentée.",
+        "threshold": "Les élèves identifient une tendance ou une comparaison dans les données et décrivent ce qu’ils remarquent. Ils tentent parfois d’expliquer pourquoi cette tendance existe.",
+        "full": "Les élèves testent une hypothèse à partir des données, visualisent les résultats de plusieurs façons, envisagent d’autres explications et relient leurs conclusions à la question initiale."
+      },
+      "extension": "L’analyse est le moment où les données deviennent du sens. Elle exige de demander « et alors ? » après chaque résultat. Prenez un nombre d’une étude que vous connaissez : que faudrait-il comparer, contextualiser ou expliquer pour que ce nombre compte ?",
+      "cases": [
+        {
+          "scenario": "Des élèves comptent le nombre d’abeilles observées dans le jardin de l’école chaque semaine pendant un mois et écrivent : « Nous avons vu 12 abeilles la première semaine et 9 la quatrième. »",
+          "explanation": "Limité : les élèves résument des observations sans identifier de tendance, comparer à une base de référence ou expliquer le changement."
+        },
+        {
+          "scenario": "Des élèves mettent en graphique les comptages d’abeilles avec la température et la densité des plantes en fleurs. Ils identifient une corrélation, envisagent d’autres facteurs et présentent leurs résultats avec leurs incertitudes au comité du jardin.",
+          "explanation": "Cycle complet : les élèves testent une relation, envisagent d’autres explications, visualisent les résultats et relient l’analyse à un public et à une décision réels."
+        }
+      ],
+      "review": "L’analyse transforme une trace en argument. Elle demande comparaison, contexte et courage : dire ce que les données signifient, tout en expliquant pourquoi on pourrait se tromper."
+    },
+    "6": {
+      "description": "Le changement réel produit par le projet pour la connaissance, la communauté, l’environnement ou les politiques.",
+      "anchor": {
+        "title": "Le rapport resté dans un dossier",
+        "text": "Une classe réalise une étude rigoureuse de six mois sur la qualité de l’air. Les données sont bien collectées et l’analyse est soignée. Les élèves produisent un rapport écrit. L’enseignant le remet au bureau de l’école comme preuve de projet terminé. Personne en dehors de l’école ne le lit. L’année suivante, le même point de pollution n’est toujours pas traité.",
+        "consider": [
+          "Le projet est-il une réussite ?",
+          "Quel était le résultat visé, et a-t-il été atteint ?",
+          "Qu’aurait-il fallu pour que les résultats comptent au-delà de la classe ?"
+        ]
+      },
+      "tiers": {
+        "bounded": "Le projet produit des résultats pour un public interne seulement : une note, une exposition ou un enseignant. Aucun résultat réel attendu n’est clairement défini.",
+        "threshold": "Les résultats sont partagés au-delà de la classe, par une plateforme, une newsletter ou un événement, mais il n’y a pas de preuve d’usage ou de changement.",
+        "full": "Le projet produit un résultat documenté : réponse politique, changement local, jeu de données publié ou engagement communautaire. L’impact est évalué et réfléchi."
+      },
+      "extension": "L’impact ne demande pas de changer le monde, mais il exige une destination nommée pour vos résultats et une façon de savoir si vous l’avez atteinte. Pour un projet réel ou imaginé : qui est le public, que changerait son engagement, et comment le sauriez-vous ?",
+      "cases": [
+        {
+          "scenario": "Des élèves réalisent une étude sur le bruit et créent une affiche pour le couloir de l’école. L’affiche reste deux semaines, puis est retirée à la fin du trimestre.",
+          "explanation": "Limité : le projet a un public interne et aucun chemin prévu vers un changement réel. L’affiche est un produit, pas un impact."
+        },
+        {
+          "scenario": "Des élèves présentent leurs résultats sur le bruit à l’équipe des installations et au conseil local. Le conseil demande le jeu de données pour une revue de planification des transports. Les élèves reviennent trois mois plus tard pour vérifier si les données ont été utilisées.",
+          "explanation": "Cycle complet : il existe un public externe nommé, un chemin vers la prise de décision et un suivi pour évaluer si l’impact a eu lieu."
+        }
+      ],
+      "review": "Les résultats et l’impact concernent ce qui a changé grâce au projet, pas seulement ce qui a été produit. Un projet en Cycle complet nomme son public avant même de collecter les données et évalue si les résultats l’ont atteint."
+    },
+    "7": {
+      "description": "La qualité et la portée de la diffusion des résultats : à quel public, dans quel format et par quels canaux.",
+      "anchor": {
+        "title": "Le diaporama resté privé",
+        "text": "Un groupe d’élèves produit une présentation soignée sur les îlots de chaleur urbains autour de l’école. Les diapositives sont bien conçues et les résultats sont intéressants. Ils présentent à leur classe et à leur enseignant, reçoivent des retours positifs et remettent la présentation comme livrable. Personne en dehors de la salle ne voit les résultats.",
+        "consider": [
+          "Était-ce une communication, ou seulement une présentation ?",
+          "Qui d’autre pourrait s’intéresser à ces résultats ?",
+          "Quel format conviendrait le mieux à chaque public ?"
+        ]
+      },
+      "tiers": {
+        "bounded": "Les résultats sont communiqués uniquement à un public interne de l’école. Le format est une présentation ou un rapport ; aucun public ou canal externe n’est envisagé.",
+        "threshold": "Les résultats sont partagés avec un public externe, par les réseaux sociaux, une plateforme publique ou un événement. Le format est approprié, mais aucune réponse ou preuve d’engagement n’est recueillie.",
+        "full": "Les résultats sont partagés avec un public nommé et dans un format conçu pour lui. Des preuves d’engagement, d’usage ou de réponse sont collectées et analysées."
+      },
+      "extension": "Des résultats différents ont besoin de contenants différents. Une carte fonctionne pour des données spatiales. Une lettre fonctionne pour un décideur. Une courte vidéo fonctionne pour un groupe communautaire qui ne lit pas de rapports. Prenez un résultat : quel est le meilleur format, et pour quel public ?",
+      "cases": [
+        {
+          "scenario": "Des élèves publient leurs résultats sur la biodiversité d’un parc sur le compte Instagram de l’école. Le post reçoit 14 mentions J’aime, surtout d’élèves et de parents.",
+          "explanation": "Intermédiaire : les résultats sont partagés avec un public externe, mais le format et le canal ne ciblent pas un public décisionnaire précis, et il n’y a pas de suivi de l’influence."
+        },
+        {
+          "scenario": "Des élèves produisent une note de deux pages sur la biodiversité du parc, conçue spécialement pour le Bureau des parcs de Beijing. Ils participent à une réunion, présentent leur résultat clé, laissent la note et font un suivi deux mois plus tard.",
+          "explanation": "Cycle complet : public externe précis, format adapté, rencontre réelle et évaluation de l’usage."
+        }
+      ],
+      "review": "La communication et la diffusion ne consistent pas seulement à publier ; elles consistent à atteindre les bonnes personnes avec des résultats utilisables. La diffusion en Cycle complet conçoit le format, le canal et le suivi avant la fin du projet."
+    },
+    "8": {
+      "description": "Les conditions, structures et investissements communautaires qui permettent au projet de continuer au-delà d’un seul cycle.",
+      "anchor": {
+        "title": "La station de suivi devenue silencieuse",
+        "text": "Une classe passe un trimestre à installer une station de mesure de la qualité de l’air sur le toit de l’école. Elle collecte d’excellentes données, publie des résultats et reçoit la reconnaissance d’une ONG environnementale locale. À la fin de l’année, les élèves fondateurs obtiennent leur diplôme. Personne n’a été formé pour utiliser la station. Dix-huit mois plus tard, elle n’a pas été mise à jour et la série de données s’arrête.",
+        "consider": [
+          "Ce projet a-t-il été conçu pour durer ?",
+          "Qu’aurait exigé la durabilité dès le début ?",
+          "Qui perd quelque chose quand un projet disparaît ?"
+        ]
+      },
+      "tiers": {
+        "bounded": "Le projet existe pendant un cycle puis s’arrête. Il n’y a pas de plan de continuation, de transfert de connaissances ou d’appropriation communautaire.",
+        "threshold": "Un effort est fait pour documenter le projet ou partager les ressources afin que d’autres puissent le poursuivre, mais aucune relation ou structure durable n’est établie.",
+        "full": "Le projet est transmis à une organisation partenaire, à une cohorte plus jeune ou à un groupe communautaire avec formation, documentation et plan de continuation. Il continue au-delà des participants d’origine."
+      },
+      "extension": "La durabilité consiste à concevoir pour votre propre départ. Que faudrait-il transmettre — pas seulement les données, mais les savoirs, les relations et l’élan — pour qu’un projet que vous avez lancé continue sans vous ?",
+      "cases": [
+        {
+          "scenario": "Une classe de Year 10 termine une étude de qualité de l’eau. Les données sont déposées sur une plateforme partagée et l’enseignant archive le rapport. Aucun élève de Year 9 n’est formé ; le site n’est plus visité.",
+          "explanation": "Limité : le projet s’arrête avec la cohorte initiale. Il n’y a pas de plan de continuité, de transfert de connaissances ou d’appropriation communautaire."
+        },
+        {
+          "scenario": "Les élèves de Year 10 forment une cohorte de Year 9, co-conçoivent un guide de suivi simplifié, les mettent en relation avec le partenaire communautaire et vérifient trois mois plus tard si le suivi continue.",
+          "explanation": "Cycle complet : le projet est conçu pour continuer. Les savoirs, les relations et l’élan sont transmis avec du soutien."
+        }
+      ],
+      "review": "La durabilité consiste à créer des projets qui vous survivent. Les projets en Cycle complet prévoient la transmission dès le début : qui poursuivra le travail, de quoi aura-t-il besoin et comment la relation sera-t-elle maintenue ?"
+    }
+  },
+  "zh": {
+    "1": {
+      "description": "理解项目所在的生态、社会和政策环境。",
+      "anchor": {
+        "title": "无人绘制的运河",
+        "text": "一名学生注意到学校附近的一段运河，附近居民会在那里清洗蔬菜。他在四周内向国家数据库上传了200张水色照片，并写下结论：自己为城市水环境监测作出了贡献。但他没有研究当地的运河使用政策，没有采访居民了解运河的变化，也没有查看这条水道的历史数据。",
+        "consider": [
+          "这名学生是否真正理解研究地点的完整背景？",
+          "他了解谁在使用这个空间，以及为什么使用吗？",
+          "还缺少什么，才能让发现更有意义？"
+        ]
+      },
+      "tiers": {
+        "bounded": "学生观察并记录地点状况，但不研究历史、社会或政策背景。",
+        "threshold": "学生研究地点背景，如土地使用、生态历史或社区意义。",
+        "full": "学生与社区成员共同调查背景，交叉比对多种资料，并用发现来调整研究问题。"
+      },
+      "extension": "情境意识会问：谁最了解这个地方？他们知道哪些仅靠数据无法告诉我们的事情？想一个学校附近的地点：当地居民会知道哪些数据集中看不到的信息？",
+      "cases": [
+        {
+          "scenario": "学生用传感器测量学校周边空气质量，并把数据提交到国家平台，但没有研究该地区的工业历史，也没有采访长期居民。",
+          "explanation": "这是有限参与：学生在收集地点数据，但没有研究能解释或深化发现的社会、历史或政策背景。"
+        },
+        {
+          "scenario": "学生采访老人了解学校附近河流40年来的变化，把访谈与历史地图交叉对照，并用这些信息解释水质测量结果，最后向本地环保部门展示发现。",
+          "explanation": "这是完整循环：学生与社区共同调查背景，使用多种知识来源，并把发现连接到公民行动。"
+        }
+      ],
+      "review": "情境意识是理解项目地点周围的完整生态系统，包括生态、社会和政策层面。高影响项目会把地点看作有层次的空间，而不只是可测量的对象。"
+    },
+    "2": {
+      "description": "公民在项目设计、执行和解释中的参与程度。",
+      "anchor": {
+        "title": "iNaturalist上传项目",
+        "text": "地球日活动后，一名学生在三周内向 iNaturalist 上传了400条植物观察。他没有收集额外背景数据，没有分析应用中的模式，也没有与其他学生或社区成员合作。最后，他写了一段简短说明，表示自己为城市生态记录作出了贡献。",
+        "consider": [
+          "这个项目成功吗？",
+          "学生的参与中缺少了什么？",
+          "谁从这个项目中受益？如何受益？"
+        ]
+      },
+      "tiers": {
+        "bounded": "学生为教师或外部组织设计的项目收集数据。角色已预设，学生对问题和方法的决定权很少。",
+        "threshold": "学生对收集方法或地点选择有一定发言权，也可能分析或解释小组数据。",
+        "full": "学生设计自己的监测路线，分析模式，并把发现呈现给真实受众，如学校设施团队、地方政府或社区组织。"
+      },
+      "extension": "公民参与不只是“出现”。它会问：参与者对研究问题、方法和受众有多少主动权？什么时候学生从数据收集者变成共同研究者？",
+      "cases": [
+        {
+          "scenario": "学生按照教师预先设计的路线收集昆虫数据，为教师设计的生物多样性研究填写统计表。",
+          "explanation": "有限参与：学生参与的是教师设计的项目。他们负责收集数据，而设计、解释和传播由别人完成。"
+        },
+        {
+          "scenario": "学生先识别最被忽视的绿地，再设计自己的监测路线，分析季节变化，并直接向学校设施经理提出建议。",
+          "explanation": "完整循环：学生对研究问题、方法和发现的真实去向都有主动权。"
+        }
+      ],
+      "review": "公民参与衡量的是参与者在决策和解释中的深度，而不只是数据收集。从有限参与走向完整循环，意味着从贡献者转变为共同研究者。"
+    },
+    "3": {
+      "description": "项目核心研究问题的清晰度、严谨性和相关性。",
+      "anchor": {
+        "title": "模糊的调查",
+        "text": "一个班决定研究“北京的污染”。他们设计纸质问卷，询问社区居民是否认为空气质量改善了。两周内收集30份回答后，他们统计结果并报告：“大多数人认为污染正在变差。”",
+        "consider": [
+          "“大多数人认为”是科学发现吗？",
+          "这里真正测量的是什么？",
+          "怎样让这个问题更具体、可回答？"
+        ]
+      },
+      "tiers": {
+        "bounded": "项目只有一个大主题，没有清晰、可测量的研究问题。收集的数据可能无法支持明确假设。",
+        "threshold": "提出了研究问题，但过于宽泛，或没有和清楚的方法连接。项目尝试收集相关证据。",
+        "full": "一个精确、可回答的问题驱动项目。变量被识别，方法能真正收集到回答问题的数据。"
+      },
+      "extension": "好的科学问题要足够具体，可以测试；足够重要，值得研究；也足够开放，能够产生真实答案。试着把“塑料垃圾”这样的模糊主题变成校园中的可测试问题。",
+      "cases": [
+        {
+          "scenario": "学生想研究“本地河流是否健康”。他们去河边一次，拍照，然后写一篇描述性报告。",
+          "explanation": "有限参与：没有明确研究问题或方法。观察较随意，不能支持可测量的结论。"
+        },
+        {
+          "scenario": "学生提出：“学校排水口上游和下游的大型无脊椎动物多样性是否不同？”他们每月两次在三个地点用标准方法取样，并分析物种丰富度变化。",
+          "explanation": "完整循环：问题精确、可测试，并与严谨可重复的方法连接，能产生可分析的数据。"
+        }
+      ],
+      "review": "公民科学项目的质量很大程度取决于驱动它的问题。可测试、具体、连接真实证据的问题，会把数据收集转化为真正的探究。"
+    },
+    "4": {
+      "description": "项目中数据的准确性、一致性和负责任管理。",
+      "anchor": {
+        "title": "没有同步的表格",
+        "text": "三个小组在一天中不同时间、使用不同观察时长收集鸟类计数数据。一组使用共享表格；另外两组写在纸上并拍照。当全班合并结果时，日期格式不同，物种名称拼写不一致，一组总数也与原始记录不符。",
+        "consider": [
+          "在开始收集之前哪里已经出问题了？",
+          "事先应该达成哪些约定？",
+          "这些发现值得信任或发表吗？"
+        ]
+      },
+      "tiers": {
+        "bounded": "数据以非正式方式收集。没有共同协议，元数据不完整，结果难以验证或复现。",
+        "threshold": "有记录模板，学生基本能一致使用，但元数据有缺口或小组之间仍不一致。",
+        "full": "收集前建立清晰的数据管理协议。元数据完整，包含质量检查，数据以可与外部伙伴共享的格式保存。"
+      },
+      "extension": "好的数据管理不是追求完美，而是追求透明。如果别人只根据你的记录复现研究，他们能做到吗？为社区绿地研究设计一页数据协议。",
+      "cases": [
+        {
+          "scenario": "学生每周五连续六周拍摄一条街上的垃圾，并上传到共享文件夹，但文件命名不统一，也没有记录时间、天气或精确地点。",
+          "explanation": "有限参与：虽然收集了数据，但缺少元数据、统一协议和管理系统，因此难以有意义地分析或共享。"
+        },
+        {
+          "scenario": "学生开始前制定垃圾监测协议：调查区域、时间窗口、天气记录标准，并使用带GPS坐标的标准表格。每周检查数据一致性。",
+          "explanation": "完整循环：系统协议、元数据、质量检查和共享管理系统，使数据可验证、可发布并可与城市规划者共享。"
+        }
+      ],
+      "review": "数据质量区分了“记录”和“证据”。一致的协议、完整的元数据和周到的管理，会把原始观察转化为可验证、可共享、有意义的数据。"
+    },
+    "5": {
+      "description": "参与者解释、可视化并从数据中得出结论的深度。",
+      "anchor": {
+        "title": "停在饼图的项目",
+        "text": "一个小组调查50名学生的日常塑料使用，并制作饼图显示62%的人每天至少使用一次一次性塑料。他们在学校集会上展示图表。被问到这对学校意味着什么时，他们回答：“这说明很多人使用塑料。”",
+        "consider": [
+          "描述数据和分析数据有什么区别？",
+          "这样的发现之后应该继续问什么问题？",
+          "更深入的分析会是什么样？"
+        ]
+      },
+      "tiers": {
+        "bounded": "学生展示原始计数或简单总结，没有比较、趋势分析或解释。",
+        "threshold": "学生识别数据中的模式或比较，并描述观察到的内容，也尝试解释原因。",
+        "full": "学生用数据检验假设，用多种方式可视化发现，考虑其他解释，并把结论连接回原始研究问题。"
+      },
+      "extension": "分析是数据变成意义的时刻。每看到一个发现，都要追问“所以呢？” 选择一个你知道的研究数字：需要比较、放入背景或解释什么，它才真正重要？",
+      "cases": [
+        {
+          "scenario": "学生一个月内每周统计学校花园里的蜜蜂数量，并报告：“第一周看到12只，第四周看到9只。”",
+          "explanation": "有限参与：学生只是总结观察，没有识别模式、比较基准或解释变化。"
+        },
+        {
+          "scenario": "学生把每周蜜蜂数量与温度和开花植物密度放在一起作图，识别相关性，考虑其他因素，并带着不确定性向学校花园委员会展示发现。",
+          "explanation": "完整循环：学生在测试关系、考虑替代解释、可视化结果，并把分析连接到真实受众和决策。"
+        }
+      ],
+      "review": "分析把记录变成论证。它需要比较、背景，也需要勇气说明你认为数据意味着什么，以及为什么你可能是错的。"
+    },
+    "6": {
+      "description": "项目为知识、社区、环境或政策带来的真实改变。",
+      "anchor": {
+        "title": "留在文件夹里的报告",
+        "text": "一个班完成了为期六个月的空气质量研究。数据收集得很好，分析也很仔细。他们写出报告，教师把报告交给学校办公室，作为项目完成的证据。校外没有人阅读。第二年，同一个污染热点仍未被处理。",
+        "consider": [
+          "这个项目成功吗？",
+          "它想达到的结果是什么？实现了吗？",
+          "怎样才能让发现超出课堂并产生意义？"
+        ]
+      },
+      "tiers": {
+        "bounded": "项目只为内部受众产生结果，如成绩、展示或教师。没有明确的现实世界目标。",
+        "threshold": "发现通过平台、通讯或活动分享出课堂，但没有证据显示被采用或带来改变。",
+        "full": "项目产生有记录的结果：政策回应、地方空间改变、公开数据集或社区承诺，并对影响进行评估和反思。"
+      },
+      "extension": "影响不一定要改变世界，但需要为发现设定明确去向，并知道是否到达。想一个真实或想象的项目：受众是谁？他们参与后会改变什么？你如何知道？",
+      "cases": [
+        {
+          "scenario": "学生完成噪声污染研究，并为学校走廊制作海报。海报张贴两周，学期末被取下。",
+          "explanation": "有限参与：项目只有内部受众，没有走向真实改变的路径。海报是产出，不是影响。"
+        },
+        {
+          "scenario": "学生向学校设施团队和地方委员会展示噪声污染发现。委员会要求获得数据，用于交通规划评估。三个月后，学生跟进记录数据是否被使用。",
+          "explanation": "完整循环：有明确外部受众、通向决策的路径，以及对影响是否发生的跟进评估。"
+        }
+      ],
+      "review": "成果与影响关注的是项目带来了什么改变，而不只是产出了什么。完整循环项目在收集第一个数据点之前就明确受众，并评估发现是否到达。"
+    },
+    "7": {
+      "description": "发现如何被分享：面向什么受众，使用什么格式，通过什么渠道。",
+      "anchor": {
+        "title": "只留在课堂里的幻灯片",
+        "text": "一组学生制作了关于学校附近城市热岛数据的精美演示。幻灯片设计认真，发现也很有意思。他们向班级和教师展示，收到积极反馈，并把演示作为项目成果提交。教室外没有任何人看到这些发现。",
+        "consider": [
+          "这是沟通，还是只是展示？",
+          "还有谁会关心这些发现？",
+          "不同受众最适合什么格式？"
+        ]
+      },
+      "tiers": {
+        "bounded": "发现只传达给学校内部受众。格式是演示或报告，没有考虑外部渠道或受众。",
+        "threshold": "发现通过社交媒体、公共平台或活动分享给外部受众。格式基本合适，但没有收集回应或参与证据。",
+        "full": "发现面向明确命名的受众，并使用为该受众设计的格式。项目收集并反思参与、采用或回应的证据。"
+      },
+      "extension": "不同发现需要不同载体。空间数据适合地图，政策建议适合信件，不读报告的社区团体可能适合短视频。选择一个发现：最合适的格式是什么？最合适的受众是谁？",
+      "cases": [
+        {
+          "scenario": "学生把公园生物多样性发现发布在学校Instagram账号上。帖子获得14个赞，大多来自学生和家长。",
+          "explanation": "进阶参与：发现已经分享给外部受众，但格式和渠道没有针对明确决策受众设计，也没有跟进它是否影响了任何人。"
+        },
+        {
+          "scenario": "学生为北京公园管理部门制作两页生物多样性简报，参加会议，展示关键发现，留下简报，并在两个月后询问数据是否被使用。",
+          "explanation": "完整循环：有明确外部受众、为该受众设计的格式、真实交流和对采用情况的评估。"
+        }
+      ],
+      "review": "交流与传播不是简单发布，而是用可使用的发现到达正确的人。完整循环传播会在项目结束前设计格式、渠道和跟进方式。"
+    },
+    "8": {
+      "description": "项目是否具备结构、条件和社区投入，能在一个周期后继续。",
+      "anchor": {
+        "title": "安静下来的监测站",
+        "text": "一个班用一学期在学校屋顶建立空气质量监测站。他们收集了很好的数据，发布了发现，并获得本地环保组织认可。年末，创始学生毕业了。没有人接受过操作培训。18个月后，监测站没有更新，数据记录中断。",
+        "consider": [
+          "这个项目从一开始就是为持续而设计的吗？",
+          "可持续性从一开始需要什么？",
+          "当一个项目消失时，谁会失去收益？"
+        ]
+      },
+      "tiers": {
+        "bounded": "项目只存在一个周期，然后结束。没有继续计划、知识传递或社区所有权。",
+        "threshold": "项目被记录或材料被分享，让别人有可能继续，但没有建立持续关系或结构。",
+        "full": "项目移交给伙伴组织、低年级学生或社区团体，并配有培训、文档和继续计划。项目超越原始参与者继续运行。"
+      },
+      "extension": "可持续性意味着为自己的离开而设计。要让你启动的项目在没有你的情况下继续，需要交接什么？不只是数据，也包括知识、关系和动力。",
+      "cases": [
+        {
+          "scenario": "Year 10 完成水质研究。数据上传到共享平台，教师归档报告。没有Year 9学生受训，监测点也没有再被访问。",
+          "explanation": "有限参与：项目随着原始班级结束。没有延续计划、知识传递或社区所有权。"
+        },
+        {
+          "scenario": "Year 10 学生培训Year 9学生，共同设计简化监测指南，把他们介绍给支持原研究的社区伙伴，并在三个月后检查监测是否继续。",
+          "explanation": "完整循环：项目被设计为可以延续。知识、关系和动力都在支持下转交给新的参与者。"
+        }
+      ],
+      "review": "可持续性是建设能超越你的项目。完整循环项目从一开始就计划交接：谁继续工作，需要什么，以及关系如何维持。"
+    }
+  },
+  "es": {
+    "1": {
+      "description": "Comprender el paisaje ecológico, social y político donde opera el proyecto.",
+      "anchor": {
+        "title": "El canal que nadie cartografió",
+        "text": "Un estudiante observa un tramo de canal cerca de la escuela que algunos vecinos usan para lavar verduras. Sube 200 fotos del color del agua durante cuatro semanas a una base nacional. Escribe que contribuyó al monitoreo del agua de su ciudad, pero no investiga las normas locales, no habla con residentes ni revisa datos históricos.",
+        "consider": [
+          "¿Comprende el estudiante el contexto completo del sitio?",
+          "¿Qué sabe sobre quién usa ese espacio y por qué?",
+          "¿Qué falta para que sus hallazgos sean más significativos?"
+        ]
+      },
+            "tiers": {
+        "bounded": "El proyecto se mantiene en observación y documentación del lugar sin investigar el contexto histórico, social ni político.",
+        "threshold": "El alumnado investiga información de contexto sobre el lugar: uso del suelo, historia ecológica o importancia comunitaria.",
+        "full": "El alumnado co-investiga el contexto con miembros de la comunidad, cruza múltiples fuentes y usa los hallazgos para dar forma a las preguntas de investigación."
+      },
+      "extension": "La conciencia del contexto pregunta: ¿quién conoce este lugar y qué sabe esa persona que los datos solos no pueden decirte? Piensa en un lugar cerca de tu escuela. ¿Qué sabría un residente local sobre él que no aparecería en ningún conjunto de datos?","cases": [
+        {
+          "scenario": "Los estudiantes miden la calidad del aire alrededor de la escuela con sensores y envían datos a una plataforma nacional sin investigar la historia industrial ni hablar con residentes antiguos.",
+          "explanation": "Limitado: recogen datos del sitio sin estudiar el contexto social, histórico o político que podría explicar los hallazgos."
+        },
+        {
+          "scenario": "Los estudiantes entrevistan a residentes mayores sobre cambios en el río, comparan con mapas históricos y usan esto para contextualizar sus mediciones antes de presentar al organismo ambiental local.",
+          "explanation": "Ciclo completo: co-investigan el contexto con la comunidad, combinan fuentes y conectan hallazgos con acción cívica."
+        }
+      ],
+      "review": "La conciencia del contexto trata de comprender el ecosistema completo —ecológico, social y político— que rodea el lugar del proyecto. Un proyecto de alto impacto trata el lugar como algo con capas, no solo como algo medible."
+    },
+    "2": {
+      "description": "El grado en que la ciudadanía participa en diseñar, realizar e interpretar el proyecto.",
+      "anchor": {
+        "title": "La carga en iNaturalist",
+        "text": "Un estudiante sube 400 observaciones de plantas a iNaturalist durante tres semanas después de una campaña del Día de la Tierra. No recopila datos de contexto, no analiza patrones de la app y no trabaja con otros estudiantes ni con la comunidad. Termina con una breve declaración sobre su aporte a los registros ecológicos.",
+        "consider": [
+          "¿El proyecto es exitoso?",
+          "¿Qué falta en la participación del estudiante?",
+          "¿Quién se beneficia y cómo?"
+        ]
+      },
+            "tiers": {
+        "bounded": "El alumnado recoge datos para un proyecto diseñado por el profesorado o por una entidad externa. Los roles están asignados de antemano y hay poca agencia sobre las preguntas o los métodos.",
+        "threshold": "El alumnado tiene cierta influencia sobre los métodos de recogida de datos o la selección de lugares; puede analizar o interpretar los datos producidos por el grupo.",
+        "full": "El alumnado diseña sus propias rutas de monitoreo, analiza patrones y presenta los hallazgos a una audiencia real: el equipo de instalaciones, la administración local o un grupo comunitario."
+      },
+      "extension": "La participación ciudadana es más que estar presente. Pregunta: ¿cuánta agencia tienen los participantes sobre las preguntas que se hacen, los métodos que se usan y las audiencias a las que se llega? ¿En qué momento pasa un estudiante de ser recolector de datos a ser co-investigador?","cases": [
+        {
+          "scenario": "Los estudiantes recogen datos de insectos en rutas ya diseñadas para un estudio del profesor y entregan sus hojas de conteo.",
+          "explanation": "Limitado: participan en un proyecto diseñado por el profesor; la agencia está fuera de sus manos."
+        },
+        {
+          "scenario": "Los estudiantes diseñan rutas de monitoreo, analizan patrones estacionales y presentan recomendaciones al responsable de instalaciones.",
+          "explanation": "Ciclo completo: tienen agencia sobre la pregunta, el método y el destino real de los hallazgos."
+        }
+      ],
+      "review": "La participación ciudadana mide cuánto intervienen los participantes en las decisiones y en la interpretación —no solo en la recogida de datos—. Avanzar de Limitado a Ciclo completo significa pasar de contribuir a co-investigar."
+    },
+    "3": {
+      "description": "La claridad, rigor y relevancia de la pregunta de investigación que guía el proyecto.",
+      "anchor": {
+        "title": "La encuesta vaga",
+        "text": "Una clase decide estudiar “la contaminación en Pekín”. Diseña una encuesta que pregunta si la calidad del aire ha mejorado. Recoge 30 respuestas y concluye que “la mayoría piensa que la contaminación empeora”.",
+        "consider": [
+          "¿“La mayoría piensa” es un hallazgo científico?",
+          "¿Qué se está midiendo realmente?",
+          "¿Cómo podría hacerse más específica y respondible la pregunta?"
+        ]
+      },
+            "tiers": {
+        "bounded": "El proyecto tiene un tema general, pero no una pregunta de investigación clara y medible. Los datos recogidos pueden no estar vinculados a ninguna hipótesis explícita.",
+        "threshold": "Se formula una pregunta de investigación, pero es demasiado amplia para probarse o no está conectada con un método claro. Hay algún intento de reunir evidencia relevante.",
+        "full": "Una pregunta precisa y respondible guía el proyecto. Las variables están identificadas y el método está diseñado para recoger datos que realmente respondan la pregunta."
+      },
+      "extension": "Una buena pregunta científica es suficientemente específica para probarse, suficientemente relevante para importar y suficientemente abierta para producir una respuesta genuina. Intenta reformular un tema vago —como \"residuos plásticos\"— en una pregunta comprobable para tu escuela.",
+      "cases": [
+        {
+          "scenario": "Los estudiantes quieren estudiar “la salud del río local”. Visitan el río una vez, toman fotos y escriben un informe descriptivo.",
+          "explanation": "Limitado: no hay una pregunta definida ni un método que sostenga una afirmación medible."
+        },
+        {
+          "scenario": "Preguntan si la diversidad de macroinvertebrados cambia aguas arriba y abajo de una salida escolar, muestrean tres sitios y analizan riqueza de especies.",
+          "explanation": "Ciclo completo: la pregunta es precisa, comprobable y conectada con un método riguroso y repetible que produce datos analizables."
+        }
+      ],
+      "review": "La calidad de un proyecto de ciencia ciudadana depende enormemente de la pregunta que lo guía. Una pregunta comprobable, específica y conectada con evidencia real transforma la recolección de datos en una auténtica investigación."
+    },
+    "4": {
+      "description": "La precisión, coherencia y gestión responsable de los datos del proyecto.",
+      "anchor": {
+        "title": "La hoja de cálculo desincronizada",
+        "text": "Tres grupos cuentan aves a distintas horas y con ventanas de observación diferentes. Un grupo usa una hoja compartida; otros escriben en papel y fotografían notas. Al combinar resultados, las fechas tienen formatos distintos, los nombres de especies varían y algunos totales no coinciden.",
+        "consider": [
+          "¿Qué salió mal antes de recolectar datos?",
+          "¿Qué acuerdos debían hacerse antes?",
+          "¿Estos hallazgos serían fiables o publicables?"
+        ]
+      },
+      "tiers": {
+        "bounded": "Los datos se recogen de manera informal. No existen protocolos compartidos, los metadatos están incompletos y los resultados serían difíciles de verificar o reproducir.",
+        "threshold": "Existe una plantilla de registro de datos. El alumnado la sigue con cierta coherencia, pero hay lagunas en los metadatos o inconsistencias entre grupos.",
+        "full": "Se establece un protocolo claro de gestión de datos antes de comenzar la recogida. Los metadatos están completos, los controles de calidad están integrados y los datos se almacenan en un formato que podría compartirse con socios externos."
+      },
+      "extension": "Una buena gestión de datos no busca la perfección, sino la transparencia. Si alguien intentara reproducir tu estudio usando únicamente tus registros, ¿podría hacerlo? Diseña un protocolo de una página para un estudio de espacios verdes en tu barrio.",
+      "cases": [
+        {
+          "scenario": "Los estudiantes fotografían basura cada viernes durante seis semanas. Suben las imágenes a una carpeta compartida, pero usan nombres de archivo distintos y no registran la hora, el clima ni la ubicación exacta.",
+          "explanation": "Limitado: se recogen datos, pero sin metadatos, protocolos coherentes ni un sistema de gestión. Sería difícil analizarlos de forma significativa o compartirlos."
+        },
+        {
+          "scenario": "Los estudiantes diseñan un protocolo de seguimiento antes de comenzar: acuerdan zonas de encuesta, ventanas horarias, umbrales meteorológicos y usan un formulario estandarizado con coordenadas GPS. Los datos se revisan semanalmente para comprobar su coherencia.",
+          "explanation": "Ciclo completo: los protocolos sistemáticos, los metadatos, los controles de calidad y el sistema de gestión compartido hacen que los datos puedan verificarse, publicarse o compartirse con planificadores urbanos."
+        }
+      ],
+      "review": "La calidad de los datos es lo que separa un registro de una evidencia. Protocolos coherentes, metadatos completos y una gestión reflexiva transforman las observaciones brutas en algo verificable, compartible y significativo."
+    },
+    "5": {
+      "description": "La profundidad con que los participantes interpretan, visualizan y concluyen a partir de sus datos.",
+      "anchor": {
+        "title": "El gráfico circular que terminó ahí",
+        "text": "Un grupo encuesta a 50 estudiantes sobre uso diario de plástico y muestra que 62% usa plástico de un solo uso al menos una vez al día. Cuando les preguntan qué significa para la escuela, responden: “Significa que mucha gente usa plástico”.",
+        "consider": [
+          "¿Cuál es la diferencia entre describir y analizar datos?",
+          "¿Qué preguntas deberían seguir a este hallazgo?",
+          "¿Cómo sería un análisis más profundo?"
+        ]
+      },
+            "tiers": {
+        "bounded": "El alumnado presenta recuentos brutos o resúmenes simples. No se intenta ninguna comparación, análisis de tendencias ni interpretación.",
+        "threshold": "El alumnado identifica un patrón o comparación en los datos y describe lo que observa. Hay algún intento de explicar por qué puede existir ese patrón.",
+        "full": "El alumnado contrasta una hipótesis con los datos, visualiza los hallazgos de múltiples formas, considera explicaciones alternativas y conecta sus conclusiones con la pregunta de investigación original."
+      },
+      "extension": "El análisis es el momento en que los datos se convierten en significado. Requiere preguntarse \"¿y qué?\" después de cada hallazgo. Toma cualquier número de un estudio que conozcas: ¿qué necesitaría compararse, contextualizarse o explicarse para que ese número importe?",
+      "cases": [
+        {
+          "scenario": "Cuentan abejas cada semana y reportan: “vimos 12 en la primera semana y 9 en la cuarta”.",
+          "explanation": "Limitado: solo resumen observaciones, sin patrón, comparación ni explicación."
+        },
+        {
+          "scenario": "Grafican abejas junto con temperatura y densidad de flores, consideran explicaciones alternativas y presentan incertidumbre.",
+          "explanation": "Ciclo completo: el alumnado pone a prueba una relación, considera explicaciones alternativas, visualiza los resultados y conecta el análisis con una audiencia y una decisión reales."
+        }
+      ],
+      "review": "El análisis transforma un registro en un argumento. Requiere comparación, contexto y la valentía de decir lo que uno cree que significan los datos, y por qué podría estar equivocándose."
+    },
+    "6": {
+      "description": "El cambio real producido para el conocimiento, la comunidad, el ambiente o la política.",
+      "anchor": {
+        "title": "El informe que quedó en una carpeta",
+        "text": "Una clase completa un estudio cuidadoso de seis meses sobre calidad del aire. Recoge buenos datos y produce un informe. El profesor lo entrega a la oficina como evidencia de proyecto terminado. Nadie fuera de la escuela lo lee, y al año siguiente el mismo punto de contaminación sigue igual.",
+        "consider": [
+          "¿Fue exitoso el proyecto?",
+          "¿Cuál era el resultado buscado y se logró?",
+          "¿Qué habría hecho que los hallazgos importaran fuera del aula?"
+        ]
+      },
+      "tiers": {
+        "bounded": "El proyecto genera hallazgos únicamente para una audiencia interna: una nota, una exposición o el profesorado. No hay un resultado real en el mundo externo claramente definido.",
+        "threshold": "Los hallazgos se comparten más allá del aula —en una plataforma, un boletín o un evento— pero no hay evidencia de que hayan sido adoptados ni de que hayan producido un cambio.",
+        "full": "El proyecto produce un resultado documentado: una respuesta política, un cambio en un espacio local, un conjunto de datos publicado o un compromiso comunitario. El impacto se evalúa y se reflexiona sobre él."
+      },
+      "extension": "El impacto no exige cambiar el mundo, pero sí requiere tener un destino concreto para los hallazgos y saber si se ha llegado a él. Para un proyecto real o imaginado: ¿quién es la audiencia, qué cambiaría si se comprometiera con tu trabajo y cómo lo sabrías?",
+      "cases": [
+        {
+          "scenario": "Los estudiantes completan un estudio de contaminación acústica y crean un póster para el pasillo escolar. El póster permanece dos semanas y se retira al final del trimestre.",
+          "explanation": "Limitado: el proyecto tiene una audiencia interna y no hay una vía planificada hacia un cambio real. El póster es un producto, no un impacto."
+        },
+        {
+          "scenario": "Los estudiantes presentan sus hallazgos sobre contaminación acústica al equipo de instalaciones y al consejo local. El consejo solicita el conjunto de datos para su revisión de planificación de transporte. Tres meses después, el alumnado comprueba si los datos fueron utilizados.",
+          "explanation": "Ciclo completo: hay una audiencia externa nombrada, una vía hacia la toma de decisiones y una evaluación de seguimiento para saber si el impacto se produjo."
+        }
+      ],
+      "review": "Los resultados y el impacto tratan sobre lo que cambió gracias al proyecto, no solo sobre lo que se produjo. Un proyecto de Ciclo completo nombra a su audiencia antes de recoger un solo dato y evalúa si los hallazgos llegaron a ella."
+    },
+    "7": {
+      "description": "La calidad y alcance de cómo se comparten los hallazgos.",
+      "anchor": {
+        "title": "La presentación que quedó privada",
+        "text": "Un grupo produce una presentación cuidada sobre islas de calor urbanas cerca de la escuela. Presenta a su clase y profesor, recibe buenos comentarios y entrega las diapositivas como producto final. Nadie fuera de la sala ve los hallazgos.",
+        "consider": [
+          "¿Fue comunicación o solo presentación?",
+          "¿Quién más podría interesarse por estos hallazgos?",
+          "¿Qué formato funcionaría mejor para cada público?"
+        ]
+      },
+            "tiers": {
+        "bounded": "Los hallazgos se comunican únicamente a una audiencia interna del centro escolar. El formato es una presentación o un informe; no se considera ningún canal ni audiencia externos.",
+        "threshold": "Los hallazgos se comparten con una audiencia externa —en redes sociales, una plataforma pública o un evento—, pero el formato no está diseñado para un público específico y no se recoge evidencia de participación o respuesta.",
+        "full": "Los hallazgos se comparten con una audiencia concreta y nombrada en un formato diseñado para ella. Se recoge y analiza evidencia de participación, adopción o respuesta."
+      },
+      "extension": "Distintos hallazgos necesitan distintos formatos. Un mapa funciona para datos espaciales. Una carta funciona para quien toma decisiones. Un vídeo breve funciona para un grupo comunitario que no lee informes. Piensa en un hallazgo de un proyecto que conozcas: ¿cuál sería el mejor formato y quién sería la mejor audiencia?","cases": [
+        {
+          "scenario": "Publican hallazgos de biodiversidad en Instagram de la escuela y reciben 14 “me gusta”.",
+          "explanation": "Intermedio: sale del aula, pero no está diseñado para un público decisor ni hay seguimiento."
+        },
+        {
+          "scenario": "Preparan una ficha de dos páginas para la Oficina de Parques, la presentan en una reunión y hacen seguimiento.",
+          "explanation": "Ciclo completo: hay una audiencia externa específica, un formato diseñado para ella, un encuentro real y una evaluación de la adopción."
+        }
+      ],
+      "review": "La comunicación y la difusión no consisten en publicar, sino en llegar a las personas correctas con hallazgos que puedan usar. La difusión de Ciclo completo diseña el formato, el canal y el seguimiento antes de que el proyecto concluya."
+    },
+    "8": {
+      "description": "Si el proyecto tiene condiciones y estructuras para continuar más allá de un ciclo.",
+      "anchor": {
+        "title": "La estación de monitoreo que quedó en silencio",
+        "text": "Una clase instala una estación de calidad del aire en el techo de la escuela. Recoge datos excelentes y recibe reconocimiento de una ONG local. Al final del año, los estudiantes se gradúan. Nadie ha sido entrenado para operarla. Dieciocho meses después, la estación ya no se actualiza.",
+        "consider": [
+          "¿El proyecto fue diseñado para durar?",
+          "¿Qué habría requerido la sostenibilidad desde el inicio?",
+          "¿Quién pierde cuando un proyecto desaparece?"
+        ]
+      },
+      "tiers": {
+        "bounded": "El proyecto existe durante un solo ciclo y concluye. No hay ningún plan de continuación, transferencia de conocimiento ni apropiación comunitaria.",
+        "threshold": "Se hace algún esfuerzo por documentar el proyecto o compartir materiales para que otros puedan continuarlo, pero no se establece ninguna relación ni estructura duradera.",
+        "full": "El proyecto se transfiere a una organización socia, una cohorte más joven o un grupo comunitario, con formación, documentación y un plan de continuación acordado. El proyecto sigue adelante más allá de los participantes originales."
+      },
+      "extension": "La sostenibilidad requiere diseñar pensando en la propia salida. ¿Qué habría que entregar —no solo los datos, sino el conocimiento, las relaciones y el impulso— para que un proyecto que pusiste en marcha siguiera funcionando sin ti?",
+      "cases": [
+        {
+          "scenario": "Una clase de Year 10 completa un estudio de calidad del agua. Los datos se suben a una plataforma compartida y el profesorado archiva el informe. Ningún estudiante de Year 9 recibe formación y el lugar de monitoreo no vuelve a visitarse.",
+          "explanation": "Limitado: el proyecto concluye con la cohorte original. No hay plan de continuidad, transferencia de conocimiento ni apropiación comunitaria."
+        },
+        {
+          "scenario": "Los estudiantes de Year 10 forman a una cohorte de Year 9, co-diseñan una guía de monitoreo simplificada, los ponen en contacto con el socio comunitario que apoyó el estudio original y comprueban tres meses después si el monitoreo ha continuado.",
+          "explanation": "Ciclo completo: el proyecto está diseñado para continuar. El conocimiento, las relaciones y el impulso se transfieren a nuevos participantes con apoyo integrado."
+        }
+      ],
+      "review": "La sostenibilidad consiste en construir proyectos que te sobrevivan. Los proyectos de Ciclo completo planifican su propia transferencia desde el principio: identifican quién continuará el trabajo, qué necesitará y cómo se mantendrá la relación."
+    }
+  }
+};
+
+let currentLang = 'en';
+let currentComponent = null;
+let currentStep = 0;
+
+const homeView = document.getElementById('home-view');
+const lessonView = document.getElementById('lesson-view');
+const grid = document.getElementById('component-grid');
+const stepsContainer = document.getElementById('steps-container');
+const stepTrack = document.getElementById('step-track');
+const prevBtn = document.getElementById('prev-step');
+const nextBtn = document.getElementById('next-step');
+const backBtn = document.getElementById('back-home');
+
+function t(key) { return UI[currentLang][key] || UI.en[key] || key; }
+function escapeHTML(value) {
+  return String(value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+}
+function componentText(comp) {
+  const translated = COMPONENT_TRANSLATIONS[currentLang]?.[comp.title];
+  const full = LESSON_TRANSLATIONS[currentLang]?.[String(comp.id)];
+  return {
+    title: translated ? translated[0] : comp.title,
+    short: translated ? translated[1] : comp.short,
+    description: full?.description || comp.description
+  };
+}
+function lessonContent(comp) {
+  const full = LESSON_TRANSLATIONS[currentLang]?.[String(comp.id)];
+  if (!full) return comp;
+  return { ...comp, ...full, anchor: full.anchor || comp.anchor, tiers: full.tiers || comp.tiers, cases: full.cases ? comp.cases.map((c, i) => ({ ...c, ...full.cases[i] })) : comp.cases };
+}
+
+function applyLanguage(lang) {
+  currentLang = lang;
+  document.documentElement.lang = lang === 'zh' ? 'zh-Hans' : lang;
+  document.querySelectorAll('.lang-btn').forEach(btn => btn.setAttribute('aria-pressed', String(btn.dataset.lang === lang)));
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if (UI[lang][key]) el.textContent = UI[lang][key];
+  });
+  buildGrid();
+  if (currentComponent) openLesson(currentComponent.id, currentStep, false);
+}
+
+function buildGrid() {
+  grid.innerHTML = '';
+  COMPONENTS.forEach(comp => {
+    const txt = componentText(comp);
+    const card = document.createElement('button');
+    card.className = `component-card ${comp.col}`;
+    card.type = 'button';
+    card.setAttribute('aria-label', `${t('start')}: ${txt.title}`);
+    card.innerHTML = `
+      <div class="card-num">${escapeHTML(t('component'))} ${String(comp.id).padStart(2,'0')}</div>
+      <div class="card-title">${escapeHTML(txt.title)}</div>
+      <div class="card-desc">${escapeHTML(txt.short)}</div>
+      <div class="card-arrow" aria-hidden="true">→</div>
+    `;
+    card.addEventListener('click', () => openLesson(comp.id));
+    grid.appendChild(card);
+  });
+}
+
+function openLesson(id, step = 0, scroll = true) {
+  currentComponent = COMPONENTS.find(comp => comp.id === id);
+  currentStep = step;
+  const txt = componentText(currentComponent);
+  homeView.hidden = true;
+  lessonView.hidden = false;
+  document.body.classList.add('lesson-active');
+  document.getElementById('lesson-eyebrow').textContent = `${t('component')} ${String(id).padStart(2,'0')} · TCSP Framework`;
+  document.getElementById('lesson-title').textContent = txt.title;
+  document.getElementById('lesson-subtitle').textContent = txt.description;
+  document.getElementById('lesson-breadcrumb').textContent = txt.title;
+  buildTrack();
+  buildStep();
+  updateNav();
+  if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goHome() {
+  currentComponent = null;
+  currentStep = 0;
+  lessonView.hidden = true;
+  homeView.hidden = false;
+  document.body.classList.remove('lesson-active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function buildTrack() {
+  stepTrack.innerHTML = '';
+  t('stages').forEach((label, index) => {
+    const pip = document.createElement('button');
+    pip.className = 'step-pip' + (index < currentStep ? ' done' : '');
+    pip.type = 'button';
+    pip.setAttribute('aria-label', `${label} ${index + 1} of 5`);
+    if (index === currentStep) pip.setAttribute('aria-current', 'step');
+    pip.addEventListener('click', () => { currentStep = index; buildTrack(); buildStep(); updateNav(); });
+    stepTrack.appendChild(pip);
+  });
+  const label = document.createElement('span');
+  label.className = 'step-name';
+  label.textContent = `${t('stages')[currentStep]} · ${currentStep + 1} / 5`;
+  stepTrack.appendChild(label);
+}
+
+function buildStep() {
+  const comp = lessonContent(currentComponent);
+  const title = componentText(currentComponent).title;
+  const tag = t('stages')[currentStep];
+  let html = '';
+  if (currentStep === 0) {
+    html = `
+      <span class="section-tag">01 · ${escapeHTML(t('anchor'))}</span>
+      <div class="lesson-panel"><h3>${escapeHTML(comp.anchor.title)}</h3><p>${escapeHTML(t('anchorHelp'))}</p></div>
+      <div class="anchor-box">${escapeHTML(comp.anchor.text)}</div>
+      <div class="lesson-panel"><h3>${escapeHTML(t('consider'))}</h3><ul class="question-list">${comp.anchor.consider.map(q => `<li>${escapeHTML(q)}</li>`).join('')}</ul><p>${escapeHTML(t('noWrong'))}</p></div>
+    `;
+  }
+  if (currentStep === 1) {
+    html = `
+      <span class="section-tag">02 · ${escapeHTML(t('levels'))}</span>
+      <div class="lesson-panel"><h3>${escapeHTML(t('howMeasure'))} ${escapeHTML(title)}?</h3><p>${escapeHTML(t('levelsCopy'))}</p></div>
+      <div class="tier-grid">
+        <article class="tier-card tier-bounded"><div class="tier-name">${escapeHTML(t('bounded'))}</div><div class="tier-label">${escapeHTML(comp.tiers.bounded)}</div></article>
+        <article class="tier-card tier-threshold"><div class="tier-name">${escapeHTML(t('threshold'))}</div><div class="tier-label">${escapeHTML(comp.tiers.threshold)}</div></article>
+        <article class="tier-card tier-full"><div class="tier-name">${escapeHTML(t('fullCycle'))}</div><div class="tier-label">${escapeHTML(comp.tiers.full)}</div></article>
+      </div>
+      <div class="lesson-panel" style="margin-top:16px"><p>${escapeHTML(t('shiftCopy'))}</p></div>
+    `;
+  }
+  if (currentStep === 2) {
+    html = `
+      <span class="section-tag">03 · ${escapeHTML(t('deepen'))}</span>
+      <div class="lesson-panel"><h3>${escapeHTML(t('reallyMean'))}</h3><p>${escapeHTML(comp.extension)}</p></div>
+      <div class="reflection-card"><strong>${escapeHTML(t('reflectPrompt'))}</strong>${escapeHTML(t('reflectCopy'))}<div class="reflection-lines" aria-hidden="true"></div></div>
+      <div class="lesson-panel"><h3>${escapeHTML(t('anchorReturn'))}</h3><p>${escapeHTML(t('anchorReturnCopy'))}</p></div>
+    `;
+  }
+  if (currentStep === 3) {
+    html = `
+      <span class="section-tag">04 · ${escapeHTML(t('cases'))}</span>
+      <div class="lesson-panel"><h3>${escapeHTML(t('classify'))}</h3><p>${escapeHTML(t('classifyCopy'))}</p></div>
+      ${comp.cases.map((c, i) => `
+        <section class="lesson-panel case-block" data-case-index="${i}">
+          <h3>${escapeHTML(t('scenario'))} ${i + 1}</h3>
+          <div class="case-scenario">${escapeHTML(c.scenario)}</div>
+          <div class="tier-options" role="group" aria-label="${escapeHTML(t('scenario'))} ${i + 1} options">
+            <button class="tier-btn b" type="button" data-choice="b">${escapeHTML(t('bounded'))}</button>
+            <button class="tier-btn t" type="button" data-choice="t">${escapeHTML(t('threshold'))}</button>
+            <button class="tier-btn f" type="button" data-choice="f">${escapeHTML(t('fullCycle'))}</button>
+          </div>
+          <div class="answer-reveal" hidden></div>
+        </section>`).join('')}`;
+  }
+  if (currentStep === 4) {
+    html = `
+      <span class="section-tag">05 · ${escapeHTML(t('review'))}</span>
+      <div class="completion-block"><div class="big" aria-hidden="true">✦</div><h3>${escapeHTML(title)} ${escapeHTML(t('complete'))}</h3><p>${escapeHTML(t('lessonContentNote'))}</p></div>
+      <div class="lesson-panel"><h3>${escapeHTML(t('keyIdea'))}</h3><p>${escapeHTML(comp.review)}</p></div>
+      <div class="tier-grid">
+        <article class="tier-card tier-bounded"><div class="tier-name">${escapeHTML(t('bounded'))}</div><div class="tier-label">${escapeHTML(comp.tiers.bounded)}</div></article>
+        <article class="tier-card tier-threshold"><div class="tier-name">${escapeHTML(t('threshold'))}</div><div class="tier-label">${escapeHTML(comp.tiers.threshold)}</div></article>
+        <article class="tier-card tier-full"><div class="tier-name">${escapeHTML(t('fullCycle'))}</div><div class="tier-label">${escapeHTML(comp.tiers.full)}</div></article>
+      </div>
+      <div class="reflection-card" style="margin-top:16px"><strong>${escapeHTML(t('journalTransfer'))}</strong>${escapeHTML(t('journalTransferCopy'))}<div class="reflection-lines" aria-hidden="true"></div></div>
+    `;
+  }
+  stepsContainer.innerHTML = html;
+  if (currentStep === 3) attachCaseHandlers();
+}
+
+function attachCaseHandlers() {
+  stepsContainer.querySelectorAll('.case-block').forEach(block => {
+    const index = Number(block.dataset.caseIndex);
+    const translatedComponent = lessonContent(currentComponent);
+    const correct = currentComponent.cases[index].answer;
+    const explanation = translatedComponent.cases[index].explanation;
+    const reveal = block.querySelector('.answer-reveal');
+    block.querySelectorAll('.tier-btn').forEach(btn => {
+      btn.setAttribute('aria-pressed', 'false');
+      btn.addEventListener('click', () => {
+        block.querySelectorAll('.tier-btn').forEach(b => b.setAttribute('aria-pressed', 'false'));
+        btn.setAttribute('aria-pressed', 'true');
+        const choice = btn.dataset.choice;
+        const isCorrect = choice === correct;
+        reveal.hidden = false;
+        reveal.className = `answer-reveal ${isCorrect ? 'correct' : 'incorrect'}`;
+        reveal.innerHTML = `<strong>${escapeHTML(isCorrect ? t('correct') : t('incorrect'))}:</strong> ${escapeHTML(explanation)}`;
+      });
+    });
+  });
+}
+
+function updateNav() {
+  prevBtn.disabled = currentStep === 0;
+  nextBtn.innerHTML = currentStep === 4 ? `${escapeHTML(t('backToComponents'))} →` : `${escapeHTML(t('continue'))} →`;
+}
+
+prevBtn.addEventListener('click', () => {
+  if (currentStep > 0) { currentStep--; buildTrack(); buildStep(); updateNav(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+});
+nextBtn.addEventListener('click', () => {
+  if (currentStep === 4) return goHome();
+  currentStep++;
+  buildTrack();
+  buildStep();
+  updateNav();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+backBtn.addEventListener('click', goHome);
+document.querySelectorAll('.lang-btn').forEach(btn => btn.addEventListener('click', () => applyLanguage(btn.dataset.lang)));
+
+buildGrid();
+</script>
+</body>
+</html>
